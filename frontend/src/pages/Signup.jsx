@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { UserPlus, ArrowLeft, ShieldCheck } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { ShieldCheck, UserPlus } from 'lucide-react';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -11,25 +12,26 @@ const Signup = () => {
     email: '',
     password: ''
   });
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setIsLoading(true);
+    const toastId = toast.loading('Creating your account...');
     
     try {
       const res = await axios.post('http://localhost:5000/signup', formData);
       if (res.data.success) {
-        setSuccess('Signup successful! Redirecting to login...');
-        setTimeout(() => navigate('/login'), 1500);
+        toast.success('Account created! Redirecting...', { id: toastId });
+        setTimeout(() => navigate('/login'), 2000);
       } else {
-        setError(res.data.message || 'Signup failed');
+        toast.error(res.data.message || 'Signup failed', { id: toastId });
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Server error during signup');
+      toast.error(err.response?.data?.message || 'Server error during signup', { id: toastId });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -38,76 +40,74 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden font-sans text-primary bg-primary">
-      <div className="w-full max-w-lg animate-in fade-in slide-in-from-bottom-8 duration-700">
-        <div className="flex justify-center mb-10">
-           <Link to="/" className="flex items-center gap-3 text-primary hover:scale-105 transition-transform group">
-              <div className="bg-secondary p-3 rounded-2xl shadow-sm border border-std group-hover:bg-hover transition-colors">
-                 <ShieldCheck className="text-brand w-8 h-8" />
+    <div className="min-h-screen flex items-center justify-center p-6 relative z-0">
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-brand/20 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+      
+      <div className="w-full max-w-lg">
+        <div className="flex justify-center mb-8">
+           <Link to="/" className="flex items-center gap-3 text-brand hover:scale-105 transition-transform">
+              <div className="p-2 bg-brand text-white rounded-lg shadow-lg">
+                <ShieldCheck className="w-6 h-6" />
               </div>
-              <h1 className="text-3xl font-black tracking-tighter">Warranty<span className="font-light">Sys</span></h1>
+              <h1 className="text-3xl font-black tracking-widest uppercase">WarrantySys</h1>
            </Link>
         </div>
 
-        <div className="std-card p-10 md:p-12 relative overflow-hidden">
-          <div className="flex flex-col items-center mb-10 text-center">
-            <h2 className="text-3xl font-black text-primary mb-2 tracking-tight">Sign Up</h2>
-            <p className="text-secondary font-medium">Create a new account.</p>
+        <div className="glass-card p-10 shadow-xl">
+          <div className="mb-8">
+            <h2 className="text-2xl font-black text-primary mb-2">Create an Account</h2>
+            <p className="text-secondary text-sm font-medium">Join us to manage your service claims.</p>
           </div>
 
-          {error && (
-            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-8 text-[10px] font-bold uppercase tracking-widest text-center shadow-sm border border-red-100">
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="bg-green-50 text-green-700 px-4 py-3 rounded-xl mb-8 text-[10px] font-bold uppercase tracking-widest text-center shadow-sm border border-green-100">
-              {success}
-            </div>
-          )}
-
-          <form onSubmit={handleSignup} className="space-y-6">
+          <form onSubmit={handleSignup} className="space-y-5">
             <div className="grid grid-cols-2 gap-5">
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-2 ml-1">First Name</label>
-                <input name="firstName" value={formData.firstName} onChange={handleChange} required className="w-full std-input font-medium text-sm" placeholder="Jane" />
+                <label className="block text-xs font-bold text-secondary mb-2">First Name</label>
+                <input name="firstName" value={formData.firstName} onChange={handleChange} required className="w-full glass-input" placeholder="Jane" />
               </div>
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-2 ml-1">Last Name</label>
-                <input name="lastName" value={formData.lastName} onChange={handleChange} required className="w-full std-input font-medium text-sm" placeholder="Doe" />
+                <label className="block text-xs font-bold text-secondary mb-2">Last Name</label>
+                <input name="lastName" value={formData.lastName} onChange={handleChange} required className="w-full glass-input" placeholder="Doe" />
               </div>
             </div>
+            
             <div className="grid grid-cols-3 gap-5">
                <div className="col-span-1">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-2 ml-1">Age</label>
-                  <input type="number" name="age" value={formData.age} onChange={handleChange} required className="w-full std-input font-medium text-sm" placeholder="25" />
+                  <label className="block text-xs font-bold text-secondary mb-2">Age</label>
+                  <input type="number" name="age" value={formData.age} onChange={handleChange} required className="w-full glass-input" placeholder="25" />
                </div>
                <div className="col-span-2">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-2 ml-1">Email</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} required className="w-full std-input font-medium text-sm" placeholder="jane@example.com" />
+                  <label className="block text-xs font-bold text-secondary mb-2">Email</label>
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} required className="w-full glass-input" placeholder="jane@example.com" />
                </div>
             </div>
+            
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-2 ml-1">Password</label>
-              <input type="password" name="password" value={formData.password} onChange={handleChange} required className="w-full std-input font-medium text-sm" placeholder="••••••••" />
+              <label className="block text-xs font-bold text-secondary mb-2">Password</label>
+              <input type="password" name="password" value={formData.password} onChange={handleChange} required className="w-full glass-input" placeholder="••••••••" />
             </div>
-            <button type="submit" className="w-full std-btn flex items-center justify-center gap-3 uppercase tracking-widest text-xs mt-4">
-              <UserPlus className="w-5 h-5 text-blue-100" />
-              Sign Up
+
+            <button 
+               type="submit" 
+               disabled={isLoading}
+               className="w-full std-btn py-3.5 flex items-center justify-center gap-3 mt-4 disabled:opacity-70"
+            >
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              ) : (
+                <>
+                  <UserPlus className="w-4 h-4 text-white/80" />
+                  Sign Up
+                </>
+              )}
             </button>
           </form>
 
-          <div className="mt-10 pt-8 border-t border-std text-center">
-            <p className="text-[11px] text-secondary font-bold uppercase tracking-widest">
-              Already have an account? <Link to="/login" className="text-brand hover:underline decoration-2 underline-offset-4 transition-all font-black ml-1">Log In</Link>
+          <div className="mt-8 text-center border-t border-std pt-6">
+            <p className="text-sm text-secondary font-medium">
+              Already have an account? <Link to="/login" className="text-brand font-bold hover:underline ml-1">Log in</Link>
             </p>
           </div>
-        </div>
-
-        <div className="mt-8 text-center">
-           <Link to="/" className="inline-flex items-center gap-2 text-secondary hover:text-primary transition-colors text-[10px] font-bold uppercase tracking-[0.2em]">
-             <ArrowLeft className="w-4 h-4" /> Back to Home
-           </Link>
         </div>
       </div>
     </div>
