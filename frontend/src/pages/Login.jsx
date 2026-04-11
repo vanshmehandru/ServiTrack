@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { ShieldCheck, ArrowRight, Lock } from 'lucide-react';
+import { ShieldCheck, Lock } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -40,32 +40,37 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 relative z-0">
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand/20 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+    <div className="min-h-screen flex items-center justify-center p-6 relative z-0 bg-[#0F172A] text-[#E2E8F0] font-sans overflow-hidden">
+      {/* Background Orbs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#3B82F6]/20 rounded-full blur-[120px] pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '8s' }}></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#6366F1]/20 rounded-full blur-[120px] pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '10s' }}></div>
       
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md z-10">
         <div className="flex justify-center mb-8">
-           <Link to="/" className="flex items-center gap-3 text-brand hover:scale-105 transition-transform">
-              <div className="p-2 bg-brand text-white rounded-lg shadow-lg">
-                <ShieldCheck className="w-6 h-6" />
+           <Link to="/" className="flex items-center gap-3 hover:scale-105 transition-transform">
+              <div className="bg-gradient-to-tr from-[#3B82F6] to-[#6366F1] p-2 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                <ShieldCheck className="w-7 h-7 text-white" />
               </div>
-              <h1 className="text-3xl font-black tracking-widest uppercase">WarrantySys</h1>
+              <h1 className="text-3xl font-black tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">WarrantySys</h1>
            </Link>
         </div>
 
-        <div className="glass-card p-10 shadow-xl">
-          <div className="mb-8">
-            <h2 className="text-2xl font-black text-primary mb-2">Welcome Back</h2>
-            <p className="text-secondary text-sm font-medium">Please enter your details to sign in.</p>
+        <div className="bg-white/[0.03] backdrop-blur-[20px] border border-white/10 rounded-3xl p-10 shadow-2xl relative overflow-hidden group">
+          {/* Subtle hover glow behind card */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-[#3B82F6]/10 to-[#6366F1]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+          
+          <div className="mb-8 text-center relative z-10">
+            <h2 className="text-3xl font-black text-white mb-2 tracking-tight">Welcome Back</h2>
+            <p className="text-[#94A3B8] text-sm font-medium">Please enter your credentials to safely connect.</p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-6 relative z-10">
             <div>
-              <label className="block text-xs font-bold text-secondary mb-2" htmlFor="email">Email</label>
+              <label className="block text-sm font-medium text-[#94A3B8] mb-2 ml-1" htmlFor="email">Email</label>
               <input 
                 id="email"
                 type="email" 
-                className="w-full glass-input"
+                className="w-full bg-white/[0.05] border border-white/10 text-white text-base rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/30 transition-all"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -73,11 +78,11 @@ const Login = () => {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-secondary mb-2" htmlFor="password">Password</label>
+              <label className="block text-sm font-medium text-[#94A3B8] mb-2 ml-1" htmlFor="password">Password</label>
               <input 
                 id="password"
                 type="password" 
-                className="w-full glass-input"
+                className="w-full bg-white/[0.05] border border-white/10 text-white text-base rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/30 transition-all"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -88,7 +93,7 @@ const Login = () => {
             <button 
                type="submit" 
                disabled={isLoading}
-               className="w-full std-btn py-3.5 flex items-center justify-center gap-3 mt-4 disabled:opacity-70"
+               className="w-full bg-gradient-to-r from-[#3B82F6] to-[#6366F1] hover:scale-[1.02] shadow-[0_10px_20px_rgba(59,130,246,0.2)] hover:shadow-[0_10px_30px_rgba(59,130,246,0.4)] text-white py-4 rounded-xl transition-all font-bold text-base flex items-center justify-center gap-3 mt-8 border-none cursor-pointer disabled:opacity-70 disabled:hover:scale-100"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -101,9 +106,9 @@ const Login = () => {
             </button>
           </form>
 
-          <div className="mt-8 text-center">
-            <p className="text-sm text-secondary font-medium">
-              Don't have an account? <Link to="/signup" className="text-brand font-bold hover:underline ml-1">Sign up</Link>
+          <div className="mt-8 text-center relative z-10 border-t border-white/5 pt-6">
+            <p className="text-sm text-[#94A3B8] font-medium">
+              Don't have an account yet? <Link to="/signup" className="text-[#3B82F6] font-bold hover:text-white transition-colors ml-1">Sign up</Link>
             </p>
           </div>
         </div>

@@ -69,9 +69,6 @@ const Landing = () => {
               <Link to="/signup" className="bg-gradient-to-r from-[#3B82F6] to-[#6366F1] text-white px-8 py-4 rounded-full font-bold text-sm flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(59,130,246,0.3)] hover:shadow-[0_15px_40px_rgba(59,130,246,0.5)] hover:scale-[1.02] transition-all duration-300 border-none">
                 Start Building <ArrowRight className="w-5 h-5"/>
               </Link>
-              <Link to="/login" className="bg-white/5 backdrop-blur-xl border border-white/10 text-white px-8 py-4 rounded-full font-bold text-sm flex items-center justify-center hover:bg-white/10 transition-all duration-300">
-                View Documentation
-              </Link>
             </div>
           </div>
 
