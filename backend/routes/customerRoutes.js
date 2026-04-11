@@ -13,10 +13,12 @@ const { verifyToken }                              = require("../middleware/auth
 // @route  POST /signup
 // @desc   Register a new customer
 router.post("/signup", signup);
+router.get("/signup", (_req, res) => res.status(405).json({ success: false, message: "Use POST to signup", hint: "Check documentation for required body fields" }));
 
 // @route  POST /login
 // @desc   Customer login
 router.post("/login", login);
+router.get("/login", (_req, res) => res.status(405).json({ success: false, message: "Use POST to login", hint: "Check documentation for required body fields" }));
 
 // ─── Products (protected) ─────────────────────────────────
 // @route  POST /product

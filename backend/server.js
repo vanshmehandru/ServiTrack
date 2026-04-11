@@ -19,6 +19,18 @@ app.use((req, _res, next) => {
 });
 
 // ─── Routes ───────────────────────────────────────────────
+app.get("/", (_req, res) => {
+  res.json({
+    success: true,
+    message: "Welcome to the Warranty & Service Management API 🛡️",
+    endpoints: {
+      health: "/health",
+      auth: ["/signup", "/login"],
+      admin: "/admin/*"
+    }
+  });
+});
+
 app.use("/", customerRoutes);      // /signup, /login, /product, /service-request …
 app.use("/admin", adminRoutes);    // /admin/login, /admin/customers …
 
@@ -28,9 +40,14 @@ app.get("/health", (_req, res) =>
 );
 
 // ─── 404 Handler ──────────────────────────────────────────
-app.use((_req, res) =>
-  res.status(404).json({ success: false, message: "Route not found" })
-);
+app.use((req, res) => {
+  console.warn(`[404] ${req.method} ${req.originalUrl}`);
+  res.status(404).json({ 
+    success: false, 
+    message: `Route not found: ${req.method} ${req.originalUrl}`,
+    hint: "Check the API documentation or visit '/' for available endpoints."
+  });
+});
 
 // ─── Global Error Handler ─────────────────────────────────
 app.use((err, _req, res, _next) => {
