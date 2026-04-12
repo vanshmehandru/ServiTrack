@@ -406,15 +406,70 @@ const Dashboard = () => {
                    </div>
 
                    {/* Table View */}
-                         <div className="text-[10px] font-black uppercase tracking-[0.4em] text-[#94A3B8]">Registry Integrity: 100% Verified</div>
-                         <div className="flex gap-4">
-                            <button className="h-12 w-12 rounded-2xl border border-slate-100 bg-white/50 backdrop-blur-md flex items-center justify-center text-slate-400 hover:text-[#0F172A] transition-all disabled:opacity-20" disabled><ChevronRight className="w-5 h-5 rotate-180"/></button>
-                            <button className="h-12 w-12 rounded-2xl bg-brand-gradient flex items-center justify-center text-white text-[12px] font-black shadow-xl shadow-blue-500/20">01</button>
-                            <button className="h-12 w-12 rounded-2xl border border-slate-100 bg-white/50 backdrop-blur-md flex items-center justify-center text-[#64748B] text-[12px] font-black hover:bg-slate-50 transition-all">02</button>
-                            <button className="h-12 w-12 rounded-2xl border border-slate-100 bg-white/50 backdrop-blur-md flex items-center justify-center text-slate-400 hover:text-[#0F172A] transition-all"><ChevronRight className="w-5 h-5"/></button>
-                         </div>
-                      </div>
-                   </div>
+                   <div className="glass-card shadow-2xl border-border-color overflow-hidden bg-bg-secondary">
+                        <div className="overflow-x-auto">
+                           <table className="w-full text-left border-collapse">
+                              <thead>
+                                 <tr className="border-b border-border-color bg-bg-primary/50">
+                                    <th className="px-10 py-8 text-[10px] font-bold text-secondary uppercase tracking-widest opacity-60">Asset Code</th>
+                                    <th className="px-10 py-8 text-[10px] font-bold text-secondary uppercase tracking-widest opacity-60">Product Nomenclature</th>
+                                    <th className="px-10 py-8 text-[10px] font-bold text-secondary uppercase tracking-widest opacity-60">SLA Timeline</th>
+                                    <th className="px-10 py-8 text-[10px] font-bold text-secondary uppercase tracking-widest opacity-60">Network Status</th>
+                                    <th className="px-10 py-8 text-right text-[10px] font-bold text-secondary uppercase tracking-widest opacity-60">Operations</th>
+                                 </tr>
+                              </thead>
+                              <tbody className="divide-y divide-border-color">
+                                 {products.map((product) => (
+                                    <tr key={product.Product_ID} className="group hover:bg-bg-primary transition-colors">
+                                       <td className="px-10 py-8">
+                                          <div className="font-mono text-[13px] font-bold text-brand">#{product.Product_ID}</div>
+                                       </td>
+                                       <td className="px-10 py-8">
+                                          <div className="text-[14px] font-bold text-primary tracking-tight">{product.Product_Name}</div>
+                                          <div className="text-[10px] font-bold text-secondary uppercase tracking-widest opacity-40 mt-1">{product.Model_Number}</div>
+                                       </td>
+                                       <td className="px-10 py-8">
+                                          <div className="flex items-center gap-3">
+                                             <div className="w-8 h-8 rounded-lg bg-bg-primary border border-border-color flex items-center justify-center text-brand">
+                                                <ShieldCheck className="w-4 h-4"/>
+                                             </div>
+                                             <div>
+                                                <div className="text-[12px] font-bold text-primary">{new Date(product.Warranty_Expiry).toLocaleDateString()}</div>
+                                                <div className="text-[9px] font-bold text-secondary uppercase tracking-widest opacity-40">Expiration Node</div>
+                                             </div>
+                                          </div>
+                                       </td>
+                                       <td className="px-10 py-8">
+                                          <div className={`inline-flex px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest border ${
+                                            product.IsUnderWarranty 
+                                              ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                                              : 'bg-red-50 text-red-600 border-red-100'
+                                          }`}>
+                                             {product.IsUnderWarranty ? 'ACTIVE' : 'EXPIRED'}
+                                          </div>
+                                       </td>
+                                       <td className="px-10 py-8 text-right">
+                                          <button className="p-3 rounded-xl bg-bg-primary border border-border-color text-secondary hover:text-brand hover:border-brand/30 transition-all">
+                                             <ArrowRight className="w-4 h-4" />
+                                          </button>
+                                       </td>
+                                    </tr>
+                                 ))}
+                              </tbody>
+                           </table>
+                        </div>
+                        
+                        {/* Table Footer */}
+                        <div className="px-10 py-8 bg-bg-primary/30 flex justify-between items-center border-t border-border-color">
+                           <div className="text-[10px] font-bold text-secondary uppercase tracking-widest opacity-60">Registry Integrity: 100% Verified</div>
+                           <div className="flex gap-4">
+                              <button className="h-10 w-10 rounded-xl border border-border-color bg-bg-secondary flex items-center justify-center text-secondary/30 hover:text-primary transition-all disabled:opacity-20" disabled><ChevronRight className="w-4 h-4 rotate-180"/></button>
+                              <button className="h-10 w-10 rounded-xl bg-brand flex items-center justify-center text-white text-[11px] font-bold">01</button>
+                              <button className="h-10 w-10 rounded-xl border border-border-color bg-bg-secondary flex items-center justify-center text-secondary hover:bg-bg-primary transition-all text-xs font-bold">02</button>
+                              <button className="h-10 w-10 rounded-xl border border-border-color bg-bg-secondary flex items-center justify-center text-secondary/30 hover:text-primary transition-all"><ChevronRight className="w-4 h-4"/></button>
+                           </div>
+                        </div>
+                    </div>
                 </div>
               )}
 
