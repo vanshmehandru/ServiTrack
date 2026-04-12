@@ -277,18 +277,27 @@ app.get('/admin/requests', async (req, res) => {
 });
 
 // Admin update request
-app.post('/admin/update-request', async (req, res) => {
+app.put('/admin/service-update', async (req, res) => {
     try {
-        const { serviceId, requestId, status, cost } = req.body;
-        if(serviceId) {
-             await db.query(`UPDATE ServiceRecord SET Service_Status = ?, Cost = ? WHERE Service_ID = ?`, [status, cost, serviceId]);
+        const { serviceId, status, cost, technician } = req.body;
+        
+        // 1. Update ServiceRecord
+        await db.query(`
+            UPDATE ServiceRecord 
+            SET Service_Status = ?, Cost = ?, Technician_ID = (SELECT Technician_ID FROM Technician WHERE Name = ? OR Technician_ID = ? LIMIT 1)
+            WHERE Service_ID = ?
+        `, [status, cost, technician, technician, serviceId]);
+
+        // 2. Sync corresponding ServiceRequest status
+        const [record] = await db.query(`SELECT Request_ID FROM ServiceRecord WHERE Service_ID = ?`, [serviceId]);
+        if (record.length > 0) {
+            await db.query(`UPDATE ServiceRequest SET Status = ? WHERE Request_ID = ?`, [status, record[0].Request_ID]);
         }
-        if(requestId) {
-             await db.query(`UPDATE ServiceRequest SET Status = ? WHERE Request_ID = ?`, [status, requestId]);
-        }
-        res.json({ success: true, message: 'Updated successfully' });
+
+        res.json({ success: true, message: 'Registry synchronized successfully' });
     } catch (err) {
-        res.status(500).json({ success: false, message: 'Server error' });
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Authority sync failed' });
     }
 });
 

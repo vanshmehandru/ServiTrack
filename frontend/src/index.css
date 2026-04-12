@@ -1,111 +1,202 @@
 @import "tailwindcss";
 
 :root {
-  --bg-primary: #F8FAFC; 
-  --bg-gradient: linear-gradient(to right, #eff6ff, #f8fafc);
-  --bg-card: rgba(255, 255, 255, 0.6); 
-  --text-primary: #0F172A;
-  --text-secondary: #64748B;
-  --border-color: rgba(0,0,0,0.08);
-  --brand: #2563EB;
-  --brand-hover: #1e4bb2;
-  --modal-bg: rgba(255, 255, 255, 0.3);
-  --glow-color: rgba(37, 99, 235, 0.1);
+  /* Soft Woodland Palette (Light Mode) */
+  --bg-primary: #F9F8F6;
+  --bg-secondary: #FFFFFF;
+  --text-primary: #3E2C23;
+  --text-secondary: #6B5D55;
+  --brand: #99AD7A;
+  --brand-soft: rgba(153, 173, 122, 0.1);
+  --brand-heavy: #7D8E63;
+  --accent: #C9B59C;
+  --border-color: rgba(62, 44, 35, 0.08);
+  --brand-gradient: linear-gradient(135deg, #99AD7A 0%, #7D8E63 100%);
+  --modal-bg: rgba(62, 44, 35, 0.3);
+  
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --shadow-sm: 0 4px 6px -1px rgba(62, 44, 35, 0.05);
+  --shadow-md: 0 10px 15px -3px rgba(62, 44, 35, 0.08);
 }
 
-:root[class~="dark"] {
-  --bg-primary: #0F172A; 
-  --bg-gradient: linear-gradient(to right, #0F172A, #1e293b);
-  --bg-card: rgba(30, 41, 59, 0.6); 
-  --text-primary: #E2E8F0;
-  --text-secondary: #94A3B8;
-  --border-color: rgba(255,255,255,0.1);
-  --brand: #3B82F6; 
-  --brand-hover: #60A5FA;
-  --modal-bg: rgba(0, 0, 0, 0.5);
-  --glow-color: rgba(59, 130, 246, 0.15);
+.dark-theme {
+  /* Soft Woodland Palette (Dark Mode) */
+  --bg-primary: #1A1614;
+  --bg-secondary: #221D1A;
+  --text-primary: #ECE9E7;
+  --text-secondary: #A39B96;
+  --brand: #A9BE8C;
+  --brand-soft: rgba(169, 190, 140, 0.1);
+  --brand-heavy: #BDD1A3;
+  --accent: #4A433F;
+  --border-color: rgba(236, 233, 231, 0.1);
+  --brand-gradient: linear-gradient(135deg, #A9BE8C 0%, #99AD7A 100%);
+  --modal-bg: rgba(0, 0, 0, 0.6);
+  
+  --glass-bg: rgba(34, 29, 26, 0.85);
+  --glass-border: rgba(236, 233, 231, 0.05);
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
 }
 
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: var(--bg-gradient);
-  background-attachment: fixed;
+  background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
-  transition: all 0.3s ease;
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Typography Refinement */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+.heading-xl { font-size: clamp(2.5rem, 8vw, 5rem); line-height: 1.1; font-weight: 800; }
+.heading-lg { font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.2; font-weight: 800; }
+.heading-md { font-size: 1.5rem; font-weight: 700; }
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 10px;
+  opacity: 0.5;
+}
+
+/* Premium Utilities */
+@utility glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md);
 }
 
 @utility glass-card {
-  background-color: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--brand);
+  }
 }
 
-@utility glass-card:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-@utility glass-input {
-  background-color: transparent;
+@utility premium-input {
+  background-color: var(--bg-primary);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
   border-radius: 0.75rem;
-  padding: 0.75rem 1rem;
+  padding: 0.875rem 1.125rem;
   transition: all 0.3s ease;
+  font-size: 0.9375rem;
+
+  &:focus {
+    border-color: var(--brand);
+    outline: none;
+    box-shadow: 0 0 0 4px var(--brand-soft);
+    background-color: var(--bg-secondary);
+  }
 }
 
-@utility glass-input:focus {
-  border-color: var(--brand);
-  outline: none;
-  box-shadow: 0 0 0 4px var(--glow-color);
-  background-color: var(--bg-card);
-}
-
-@utility std-btn {
-  background: linear-gradient(135deg, #2563EB, #3B82F6);
-  color: #ffffff;
+@utility primary-button {
+  background: var(--brand);
+  color: #FFFFFF;
   border-radius: 0.75rem;
   font-weight: 600;
   border: none;
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 1rem 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  box-shadow: 0 4px 12px var(--brand-soft);
+
+  &:hover {
+    background: var(--brand-heavy);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px var(--brand-soft);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+@utility premium-button-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
   transition: all 0.3s ease;
-  padding: 0.75rem 1rem;
-  box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
+  padding: 1rem 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+
+  &:hover {
+    background: var(--bg-primary);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
 }
 
-@utility std-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+@utility bg-brand-gradient {
+  background: var(--brand-gradient);
 }
 
-@utility nav-glass {
-  background-color: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+.animate-in {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Animations */
-.glass-glow-active {
-  box-shadow: 0 0 15px var(--brand);
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.text-primary { color: var(--text-primary); }
-.text-secondary { color: var(--text-secondary); }
-.border-std { border-color: var(--border-color); }
-.divide-std > * + * { border-color: var(--border-color); }
-.text-brand { color: var(--brand); }
-.bg-brand { background-color: var(--brand); }
+.bg-mesh {
+  background-color: var(--bg-primary);
+  background-image: 
+    radial-gradient(at 0% 0%, var(--brand-soft) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(201, 181, 156, 0.08) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(153, 173, 122, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(62, 44, 35, 0.03) 0px, transparent 50%);
+}
 
-/* Scrollbar styling */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+.fade-in { animation: fadeIn 0.5s ease-out; }
+.slide-in-from-bottom { animation: slideInBottom 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+
+@keyframes slideInBottom {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.theme-transition {
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+              color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}

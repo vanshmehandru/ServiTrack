@@ -8,7 +8,7 @@ import AdminDashboard from './pages/AdminDashboard';
 // Route Protection Component
 const ProtectedRoute = ({ children, requiredRole }) => {
   const role = localStorage.getItem('userRole');
-  if (role !== requiredRole) {
+  if (role?.toLowerCase() !== requiredRole.toLowerCase()) {
     return <Navigate to="/login" replace />;
   }
   return children;
@@ -17,16 +17,18 @@ const ProtectedRoute = ({ children, requiredRole }) => {
 // Also protect against logged-in users visiting auth pages
 const AuthRoute = ({ children }) => {
   const role = localStorage.getItem('userRole');
-  if (role === 'admin') return <Navigate to="/admin-dashboard" replace />;
-  if (role === 'customer') return <Navigate to="/dashboard" replace />;
+  if (role?.toLowerCase() === 'admin') return <Navigate to="/admin" replace />;
+  if (role?.toLowerCase() === 'customer') return <Navigate to="/dashboard" replace />;
   return children;
 };
 
 import { Toaster } from 'react-hot-toast';
+import { ThemeProvider } from './context/ThemeContext';
 
 function App() {
   return (
-    <BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
       <Toaster position="top-right" />
       <Routes>
         <Route path="/" element={
@@ -53,13 +55,14 @@ function App() {
           </ProtectedRoute>
         } />
 
-        <Route path="/admin-dashboard" element={
+        <Route path="/admin" element={
           <ProtectedRoute requiredRole="admin">
             <AdminDashboard />
           </ProtectedRoute>
         } />
       </Routes>
-    </BrowserRouter>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 
