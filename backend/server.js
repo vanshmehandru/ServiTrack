@@ -9,17 +9,17 @@ app.use(express.json());
 // Auth: Signup
 app.post('/signup', async (req, res) => {
     try {
-        const { firstName, lastName, age, email, password } = req.body;
+        const { firstName, lastName, age, email, password, phone, address } = req.body;
         
         // Simple input validation
-        if (!firstName || !lastName || !email || !password) {
+        if (!firstName || !lastName || !email || !password || !phone || !address) {
             return res.status(400).json({ success: false, message: 'All fields are required' });
         }
 
         // Insert into Customer table
         await db.query(
-            `INSERT INTO Customer (First_Name, Last_Name, Age, Email, Password) VALUES (?, ?, ?, ?, ?)`,
-            [firstName, lastName, age, email, password]
+            `INSERT INTO Customer (First_Name, Last_Name, Age, Email, Password, Phone, Address) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [firstName, lastName, age, email, password, phone, address]
         );
         res.json({ success: true, message: 'Signup successful' });
     } catch (err) {

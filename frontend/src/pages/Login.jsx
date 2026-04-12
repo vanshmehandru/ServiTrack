@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import { ShieldCheck, Mail, Lock, Eye, ArrowRight, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { ShieldCheck, Mail, Lock, Eye, ArrowRight, ArrowLeft, Zap, Globe } from 'lucide-react';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -14,91 +12,82 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    const toastId = toast.loading('Authenticating...');
+    const tId = toast.loading('Authenticating...');
     
     try {
-      const res = await axios.post('http://localhost:5000/login', { email, password });
+      const response = await fetch('http://localhost:5000/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const data = await response.json();
       
-      if (res.data.success) {
-        localStorage.setItem('userRole', res.data.user.Role || 'Customer');
-        localStorage.setItem('userData', JSON.stringify(res.data.user));
-        toast.success('Authentication successful', { id: toastId });
-        
-        setTimeout(() => {
-          if (res.data.user.Role === 'Admin') {
-            navigate('/admin');
-          } else {
-            navigate('/dashboard');
-          }
-        }, 1000);
+      if (data.success) {
+        localStorage.setItem('userRole', data.role);
+        localStorage.setItem('userData', JSON.stringify(data.user));
+        toast.success('Authentication successful', { id: tId });
+        navigate('/dashboard');
       } else {
-        toast.error(res.data.message || 'Invalid credentials', { id: toastId });
+        toast.error(data.message || 'Invalid credentials', { id: tId });
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Server connection failed', { id: toastId });
+      toast.error('Connection failed. Is the server running?', { id: tId });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen font-sans bg-mesh flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Decorative Elements */}
-      <div className="absolute top-[10%] left-[5%] w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-[10%] right-[5%] w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl"></div>
-
-      <Link to="/" className="absolute top-8 left-8 flex items-center gap-2 group transition-all hover:-translate-x-1">
-        <ArrowLeft className="w-4 h-4 text-secondary group-hover:text-brand" />
-        <span className="text-sm font-bold text-secondary group-hover:text-primary uppercase tracking-widest">Back to Hub</span>
+    <div className="min-h-screen bg-bg-primary flex items-center justify-center p-6 font-sans">
+      <Link to="/" className="absolute top-10 left-10 flex items-center gap-2 group transition-all">
+        <ArrowLeft className="w-4 h-4 text-text-secondary" />
+        <span className="text-[11px] font-bold text-text-secondary uppercase tracking-widest">Back</span>
       </Link>
 
-      <div className="w-full max-w-[440px] glass-card p-12 relative z-10 animate-in border-border-color bg-bg-secondary">
+      <div className="w-full max-w-[420px] bg-white p-12 border border-border-color rounded-[2rem] shadow-sm animate-in">
         
-        <div className="flex flex-col items-center mb-10">
-           <div className="bg-brand p-3.5 rounded-2xl mb-6 shadow-xl shadow-brand/20">
-             <ShieldCheck className="w-9 h-9 text-white" />
+        <div className="flex flex-col items-center mb-10 text-center">
+           <div className="bg-black p-2 rounded-xl mb-6 shadow-xl shadow-black/10">
+             <ShieldCheck className="w-8 h-8 text-white" />
            </div>
-           <h2 className="text-3xl font-bold text-primary mb-2 tracking-tight">Warranty<span className="text-brand">Sys</span></h2>
-           <p className="text-[10px] font-bold text-secondary uppercase tracking-widest opacity-60">Verified Access Gate</p>
+           <h2 className="text-3xl font-bold text-text-primary mb-2 tracking-tight italic serif-heading">Welcome Back.</h2>
+           <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Verified Enrollment Gate</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
-            <label className="block text-[10px] font-bold text-secondary uppercase tracking-widest ml-1 opacity-60">Identity (Email)</label>
-            <div className="relative flex items-center group">
-               <Mail className="absolute left-4 w-4 h-4 text-secondary/30 group-focus-within:text-brand transition-colors" />
+            <label className="block text-[10px] font-bold text-text-secondary uppercase tracking-widest ml-1">Identity (Email)</label>
+            <div className="relative group">
+               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary opacity-30 group-focus-within:opacity-100 transition-opacity" />
                <input 
                  type="email" 
-                 value={email} 
-                 onChange={(e) => setEmail(e.target.value)} 
                  required 
-                 className="premium-input w-full pl-11 py-4 text-[14px]"
+                 className="premium-input w-full pl-11 py-3.5 text-[14px]"
                  placeholder="name@enterprise.com" 
+                 value={formData.email}
+                 onChange={e => setFormData({...formData, email: e.target.value})}
                />
             </div>
           </div>
           
           <div className="space-y-2">
-            <div className="flex justify-between items-center ml-1">
-               <label className="block text-[10px] font-bold text-secondary uppercase tracking-widest opacity-60">Security Key</label>
-               <span className="text-[10px] font-bold text-brand uppercase tracking-widest cursor-pointer hover:underline">Reset</span>
-            </div>
-            <div className="relative flex items-center group">
-               <Lock className="absolute left-4 w-4 h-4 text-secondary/30 group-focus-within:text-brand transition-colors" />
+            <label className="block text-[10px] font-bold text-text-secondary uppercase tracking-widest ml-1">Security Key</label>
+            <div className="relative group">
+               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary opacity-30 group-focus-within:opacity-100 transition-opacity" />
                <input 
                  type={showPassword ? "text" : "password"} 
-                 value={password} 
-                 onChange={(e) => setPassword(e.target.value)} 
                  required 
-                 className="premium-input w-full pl-11 pr-11 py-4 text-[14px]" 
+                 className="premium-input w-full pl-11 pr-11 py-3.5 text-[14px]" 
                  placeholder="••••••••" 
+                 value={formData.password}
+                 onChange={e => setFormData({...formData, password: e.target.value})}
                />
                <button 
                  type="button"
-                 className="absolute right-4 cursor-pointer text-secondary/30 hover:text-brand transition-colors"
+                 className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer opacity-30 hover:opacity-100 transition-opacity border-none bg-transparent"
                  onClick={() => setShowPassword(!showPassword)}
                >
-                 <Eye className={`w-4 h-4 ${showPassword ? 'text-brand' : ''}`} />
+                 <Eye className={`w-4 h-4 ${showPassword ? 'text-black' : ''}`} />
                </button>
             </div>
           </div>
@@ -106,33 +95,27 @@ const Login = () => {
           <button 
              type="submit" 
              disabled={isLoading}
-             className="primary-button w-full mt-4 py-4 text-[13px] font-bold uppercase tracking-widest shadow-brand/10"
+             className="primary-button w-full mt-4 py-4 text-[13px] font-bold uppercase tracking-widest"
           >
             {isLoading ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
             ) : (
               <>
-                Initialize Session <ArrowRight className="w-4 h-4" />
+                Initialize session <ArrowRight className="w-4 h-4" />
               </>
             )}
           </button>
         </form>
 
         <div className="mt-10 text-center">
-          <p className="text-sm font-bold text-secondary opacity-80">
-            No credentials? <Link to="/signup" className="text-brand font-bold hover:underline underline-offset-4">Request Enrollment</Link>
+          <p className="text-sm font-medium text-text-secondary">
+            No credentials? <Link to="/signup" className="text-black font-bold hover:underline underline-offset-4">Request Enrollment</Link>
           </p>
         </div>
-      </div>
-      
-      {/* Mesh Footer Detail */}
-      <div className="absolute bottom-10 flex gap-12 opacity-30 grayscale saturate-0 pointer-events-none">
-         <Zap className="w-5 h-5 text-slate-400" />
-         <Globe className="w-5 h-5 text-slate-400" />
-         <ShieldCheck className="w-5 h-5 text-slate-400" />
       </div>
     </div>
   );
 };
 
 export default Login;
+
