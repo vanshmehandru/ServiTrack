@@ -242,42 +242,53 @@ app.post('/feedback', async (req, res) => {
 
 // Admin update request
 app.put('/admin/service-update', async (req, res) => {
+    console.log('--- ADMIN UPDATE LOG ---');
+    console.log('Payload:', req.body);
     try {
         const { serviceId, requestId, status, cost, technician } = req.body;
         
         let actualServiceId = serviceId;
         let actualRequestId = requestId;
 
-        // If serviceId is missing, it means we might need to create a ServiceRecord for this Request
+        // If serviceId is missing, logic for multi-entry mapping
         if (!actualServiceId && actualRequestId) {
+            console.log('Missing ServiceId. Fetching for Request:', actualRequestId);
             const [existingRecord] = await db.query(`SELECT Service_ID FROM ServiceRecord WHERE Request_ID = ?`, [actualRequestId]);
             if (existingRecord.length > 0) {
                 actualServiceId = existingRecord[0].Service_ID;
+                console.log('Found existing ServiceId:', actualServiceId);
             } else {
-                // Create new record
+                console.log('No ServiceRecord found. Initializing new entry...');
                 const [newRecord] = await db.query(
-                    `INSERT INTO ServiceRecord (Request_ID, Service_Status, Service_Date, Cost) VALUES (?, 'Assigned', CURDATE(), ?)`,
-                    [actualRequestId, cost || 0.00]
+                    `INSERT INTO ServiceRecord (Request_ID, Service_Status, Service_Date, Cost, Technician_ID) VALUES (?, ?, CURDATE(), ?, NULL)`,
+                    [actualRequestId, status || 'Pending', cost || 0.00]
                 );
+                // In mysql2/promise, result is the first element
                 actualServiceId = newRecord.insertId;
+                console.log('Created new ServiceRecord ID:', actualServiceId);
             }
         }
 
-        if (!actualServiceId) return res.status(400).json({ success: false, message: 'Service ID or Request ID required' });
+        if (!actualServiceId) {
+            console.error('CRITICAL: Update failed due to missing identifiers');
+            return res.status(400).json({ success: false, message: 'Service ID or Request ID required' });
+        }
 
-        // Handle Technician: find or create
+        // Handle Technician
         let techId = null;
         if (technician) {
+            console.log('Assigning Technician:', technician);
             const [techs] = await db.query(`SELECT Technician_ID FROM Technician WHERE Name = ? OR Technician_ID = ? LIMIT 1`, [technician, technician]);
             if (techs.length > 0) {
                 techId = techs[0].Technician_ID;
             } else {
-                // Auto-create technician if name was typed and not found
+                console.log('Technician not found. Creating new registry entry for:', technician);
                 const [insertTech] = await db.query(`INSERT INTO Technician (Name) VALUES (?)`, [technician]);
                 techId = insertTech.insertId;
             }
         }
 
+        // Sync Status & Cost
         const [recordInfo] = await db.query(`
             SELECT W.End_Date, SR.Product_ID, SR.Request_ID
             FROM ServiceRecord SRec
@@ -289,12 +300,12 @@ app.put('/admin/service-update', async (req, res) => {
         let finalCost = cost;
         if (recordInfo.length > 0) {
             const isUnderWarranty = new Date() <= new Date(recordInfo[0].End_Date);
-            if (isUnderWarranty) {
-                finalCost = 0.00;
-            }
+            console.log('Warranty Status:', isUnderWarranty ? 'ACTIVE' : 'EXPIRED');
+            if (isUnderWarranty) finalCost = 0.00;
             if (!actualRequestId) actualRequestId = recordInfo[0].Request_ID;
         }
 
+        console.log('Finalizing records. ID:', actualServiceId, 'Status:', status, 'Cost:', finalCost);
         await db.query(`
             UPDATE ServiceRecord 
             SET Service_Status = ?, Cost = ?, Technician_ID = ?
@@ -305,10 +316,12 @@ app.put('/admin/service-update', async (req, res) => {
             await db.query(`UPDATE ServiceRequest SET Status = ? WHERE Request_ID = ?`, [status, actualRequestId]);
         }
 
+        console.log('System synchronization complete.');
         res.json({ success: true, message: 'System records updated' });
     } catch (err) {
+        console.error('--- AUTHORITY SYNC ERROR ---');
         console.error(err);
-        res.status(500).json({ success: false, message: 'Authority sync failed' });
+        res.status(500).json({ success: false, message: 'Authority sync failed: Internal database error' });
     }
 });
 

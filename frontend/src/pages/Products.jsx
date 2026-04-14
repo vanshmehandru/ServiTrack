@@ -402,7 +402,7 @@ const Products = () => {
 const RecordsModal = ({ isOpen, onClose, product, records, isLoading }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[60000] flex items-center justify-center p-10 bg-black/40 backdrop-blur-sm animate-in">
+    <div className="fixed inset-0 z-[60000] flex items-center justify-center p-10 bg-black/5 backdrop-blur-sm animate-in">
       <div className="absolute inset-0" onClick={onClose}></div>
       <div 
         className="w-full max-w-4xl bg-bg-primary border border-border-color rounded-[3rem] shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[85vh]"

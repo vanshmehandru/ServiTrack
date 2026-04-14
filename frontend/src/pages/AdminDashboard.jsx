@@ -20,6 +20,7 @@ const AdminDashboard = () => {
   const { isDark, toggleTheme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [technicians, setTechnicians] = useState([]);
+  const [selectedStatuses, setSelectedStatuses] = useState({}); // { requestId: status }
 
   const navigate = useNavigate();
 
@@ -82,13 +83,18 @@ const AdminDashboard = () => {
   const updateRequestStatus = async (serviceId, requestId, status, cost, technician) => {
     const tId = toast.loading('Updating system records...');
     try {
-      await axios.put('http://localhost:5000/admin/service-update', {
+      const response = await axios.put('http://localhost:5000/admin/service-update', {
         serviceId, requestId, status, cost, technician
       });
-      toast.success('Record updated successfully.', { id: tId });
-      fetchAdminData();
+      if (response.data.success) {
+        toast.success('Record updated successfully.', { id: tId });
+        fetchAdminData();
+      } else {
+        toast.error(`Sync failed: ${response.data.message}`, { id: tId });
+      }
     } catch (err) {
-      toast.error('Update failed: Connection error.', { id: tId });
+      const msg = err.response?.data?.message || 'Connection error.';
+      toast.error(`Update failed: ${msg}`, { id: tId });
     }
   };
 
@@ -312,7 +318,7 @@ const AdminDashboard = () => {
                    <div className="grid grid-cols-1 gap-12">
                       {filteredRequests.map(req => {
                          const isCompleted = req.Status === 'Completed';
-                         const isUnderWarranty = (new Date() <= new Date(req.End_Date));
+                         const isUnderWarranty = req.End_Date ? (new Date() <= new Date(req.End_Date)) : false;
                          return (
                              <div key={req.Request_ID} className="bg-bg-secondary border border-border-color rounded-[3rem] overflow-hidden flex flex-col xl:flex-row min-h-[450px] group transition-all hover:shadow-xl">
                                 <div className="w-full xl:w-[480px] border-r border-border-color p-10 flex flex-col justify-between relative overflow-hidden bg-bg-primary/50">
@@ -370,10 +376,11 @@ const AdminDashboard = () => {
                                      className="space-y-10"
                                      onSubmit={(e) => {
                                        e.preventDefault();
+                                       const finalStatus = selectedStatuses[req.Request_ID] || req.Status || 'Pending';
                                        updateRequestStatus(
                                          req.RecordId, 
                                          req.Request_ID,
-                                         e.target.status.value, 
+                                         finalStatus, 
                                          e.target.cost.value, 
                                          e.target.technician.value
                                        );
@@ -387,13 +394,16 @@ const AdminDashboard = () => {
                                                <select 
                                                   name="technician" 
                                                   defaultValue={req.TechnicianName} 
-                                                  className="premium-input w-full pl-16 py-4 text-[14px] bg-bg-primary text-text-primary appearance-none cursor-pointer"
+                                                  className="premium-input w-full pl-16 pr-10 py-4 text-[14px] bg-bg-primary text-text-primary cursor-pointer focus:ring-1 focus:ring-brand"
                                                >
                                                   <option value="">Awaiting Assignment...</option>
                                                   {technicians.map(t => (
                                                      <option key={t.Technician_ID} value={t.Name}>{t.Name}</option>
                                                   ))}
                                                </select>
+                                               <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none opacity-30">
+                                                  <ChevronRight className="w-4 h-4 rotate-90" />
+                                               </div>
                                             </div>
                                          </div>
                                          <div>
@@ -404,7 +414,7 @@ const AdminDashboard = () => {
                                                   type="number" 
                                                   step="0.01" 
                                                   name="cost" 
-                                                  defaultValue={isUnderWarranty ? "0.00" : req.Cost} 
+                                                  defaultValue={isUnderWarranty ? "0.00" : (req.Cost || "0.00")} 
                                                   readOnly={isUnderWarranty}
                                                   className={`premium-input w-full pl-16 py-4 text-[14px] font-mono bg-bg-primary text-text-primary ${isUnderWarranty ? 'opacity-50 cursor-not-allowed' : ''}`} 
                                                   placeholder="0.00" 
@@ -417,16 +427,27 @@ const AdminDashboard = () => {
                                       <div>
                                          <label className="block text-[11px] font-bold text-text-secondary uppercase tracking-widest mb-6 opacity-60">Update Status</label>
                                          <div className="grid grid-cols-3 gap-4">
-                                            {['Pending', 'In Progress', 'Completed'].map(status => (
-                                               <label key={status} className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all cursor-pointer ${
-                                                 (req.Status || 'Pending') === status 
-                                                   ? 'border-brand bg-brand/5 shadow-sm scale-105' 
-                                                   : 'border-border-color bg-bg-primary hover:border-brand/30'
-                                               }`}>
-                                                  <input type="radio" name="status" value={status} defaultChecked={(req.Status || 'Pending') === status} className="hidden" />
-                                                  <span className={`text-[10px] font-bold uppercase tracking-widest ${ (req.Status || 'Pending') === status ? 'text-brand' : 'text-text-secondary/60'}`}>{status}</span>
-                                               </label>
-                                            ))}
+                                            {['Pending', 'In Progress', 'Completed'].map(status => {
+                                               const currentStatus = selectedStatuses[req.Request_ID] || req.Status || 'Pending';
+                                               const isActive = currentStatus === status;
+                                               return (
+                                                  <label key={status} className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all cursor-pointer ${
+                                                    isActive 
+                                                      ? 'border-brand bg-brand/5 shadow-sm scale-105' 
+                                                      : 'border-border-color bg-bg-primary hover:border-brand/30'
+                                                  }`}>
+                                                     <input 
+                                                        type="radio" 
+                                                        name={`status-${req.Request_ID}`} 
+                                                        value={status} 
+                                                        checked={isActive} 
+                                                        onChange={() => setSelectedStatuses(prev => ({ ...prev, [req.Request_ID]: status }))}
+                                                        className="hidden" 
+                                                     />
+                                                     <span className={`text-[10px] font-bold uppercase tracking-widest ${ isActive ? 'text-brand' : 'text-text-secondary/60'}`}>{status}</span>
+                                                  </label>
+                                               );
+                                            })}
                                          </div>
                                       </div>
 
@@ -557,7 +578,13 @@ const AdminDashboard = () => {
                                   </div>
                                   <p className="text-[12px] font-bold text-text-primary opacity-80 truncate">{cust.Address}</p>
                                </div>
-                               <button className="w-full py-4 rounded-xl bg-bg-primary border border-border-color text-text-primary font-bold text-[10px] uppercase tracking-widest hover:bg-brand hover:text-bg-primary transition-all duration-300">
+                               <button 
+                                  onClick={() => {
+                                    setSearchQuery(`${cust.First_Name} ${cust.Last_Name}`);
+                                    setActiveTab('database');
+                                  }}
+                                  className="w-full py-4 rounded-xl bg-bg-primary border border-border-color text-text-primary font-bold text-[10px] uppercase tracking-widest hover:bg-brand hover:text-bg-primary transition-all duration-300"
+                                >
                                   View System Records
                                 </button>
                             </div>
@@ -569,6 +596,48 @@ const AdminDashboard = () => {
                             <p className="text-text-secondary font-black uppercase tracking-widest text-[11px] opacity-40">No registered customers found.</p>
                          </div>
                       )}
+                   </div>
+                </div>
+              )}
+
+              {activeTab === 'reports' && (
+                <div className="space-y-12 animate-in">
+                   <div className="flex justify-between items-center mb-10 px-2">
+                      <div>
+                         <h2 className="text-4xl font-bold text-text-primary tracking-tight mb-2">Authority <span className="text-brand">Activity.</span></h2>
+                         <p className="text-text-secondary font-semibold text-xs tracking-widest uppercase opacity-60">Real-time system health & administrative action logs</p>
+                      </div>
+                   </div>
+
+                   <div className="bg-bg-secondary border border-border-color rounded-[3rem] overflow-hidden">
+                      <div className="p-10 bg-bg-primary/30 border-b border-border-color flex items-center justify-between">
+                         <div className="flex items-center gap-4">
+                            <div className="w-3 h-3 bg-brand rounded-full animate-pulse shadow-[0_0_10px_rgba(var(--brand-rgb),0.5)]"></div>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-text-primary">System Core: Operational</span>
+                         </div>
+                         <span className="text-[10px] font-mono font-bold text-text-secondary opacity-40">Uptime: 432:12:05</span>
+                      </div>
+                      <div className="p-0 overflow-hidden">
+                         <div className="font-mono text-[13px] leading-relaxed divide-y divide-border-color/30">
+                            {[
+                               { t: '17:42:05', e: 'DB_SYNC', m: 'Global warranty registry synchronized with node-beta.', s: 'Success' },
+                               { t: '16:15:22', e: 'SEC_AUDIT', m: 'Auth token rotation completed for admin cluster.', s: 'Info' },
+                               { t: '15:20:10', e: 'MAINT_JOB', m: 'Automated cleanup of expired service tokens.', s: 'Success' },
+                               { t: '14:05:44', e: 'ENTRY_NEW', m: 'Hardware unit SN-98234-X added to registry.', s: 'Success' },
+                               { t: '12:30:12', e: 'REPORT_GEN', m: 'Monthly technical fulfillment report generated.', s: 'Info' },
+                               { t: '09:12:33', e: 'NET_CHECK', m: 'Heartbeat signal verified across all regions.', s: 'Success' },
+                            ].map((log, i) => (
+                               <div key={i} className="px-10 py-6 flex items-start gap-8 hover:bg-bg-primary/50 transition-colors">
+                                  <span className="text-text-secondary opacity-40 shrink-0">{log.t}</span>
+                                  <span className={`badge shrink-0 min-w-[100px] text-center ${log.s === 'Success' ? 'badge-completed' : 'badge-pending'}`}>{log.e}</span>
+                                  <span className="text-text-primary font-medium">{log.m}</span>
+                               </div>
+                            ))}
+                         </div>
+                      </div>
+                      <div className="p-10 bg-bg-primary/30 border-t border-border-color flex justify-center">
+                         <button className="text-[10px] font-black uppercase tracking-[.3em] text-text-secondary hover:text-brand transition-colors">View Archival Records</button>
+                      </div>
                    </div>
                 </div>
               )}

@@ -189,7 +189,7 @@ const History = () => {
 
 const HistoryDetailModal = ({ record, onClose }) => {
   return (
-    <div className="fixed inset-0 z-[60000] flex items-center justify-center p-10 bg-black/40 backdrop-blur-sm animate-in">
+    <div className="fixed inset-0 z-[60000] flex items-center justify-center p-10 bg-black/5 backdrop-blur-sm animate-in">
       <div className="absolute inset-0" onClick={onClose}></div>
       <div 
         className="w-full max-w-2xl bg-bg-primary border border-border-color rounded-[3rem] shadow-2xl relative z-10 overflow-hidden flex flex-col transition-all"
