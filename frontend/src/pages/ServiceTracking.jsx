@@ -125,7 +125,7 @@ const ServiceTracking = () => {
                               <div className="w-8 h-8 rounded-lg bg-bg-secondary border border-border-color flex items-center justify-center text-text-primary border-none group-hover:scale-110">
                                  <User className="w-4 h-4 opacity-50" />
                               </div>
-                              <div className="text-[13px] font-bold text-text-primary">{r.Technician_Name || 'Awaiting Assignment'}</div>
+                              <div className="text-[13px] font-bold text-text-primary">{r.TechnicianName || 'Awaiting Assignment'}</div>
                            </div>
                         </td>
                         <td className="px-10 py-8 text-right">

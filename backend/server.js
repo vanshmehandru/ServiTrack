@@ -279,6 +279,42 @@ app.put('/admin/service-update', async (req, res) => {
     }
 });
 
+// Admin: Global Registry Views
+app.get('/admin/all-products', async (req, res) => {
+    try {
+        const [products] = await db.query(`
+            SELECT P.*, C.First_Name, C.Last_Name, W.Warranty_Type, W.Start_Date, W.End_Date
+            FROM Product P
+            LEFT JOIN Customer C ON P.Customer_ID = C.Customer_ID
+            LEFT JOIN Warranty W ON P.Product_ID = W.Product_ID
+        `);
+        const currentDate = new Date();
+        products.forEach(p => {
+            const end = new Date(p.End_Date);
+            p.IsUnderWarranty = p.End_Date ? (currentDate <= end) : false;
+        });
+        res.json({ success: true, products });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Registry fetch failed' });
+    }
+});
+
+app.get('/admin/all-customers', async (req, res) => {
+    try {
+        const [customers] = await db.query(`
+            SELECT C.*, COUNT(P.Product_ID) as Total_Products
+            FROM Customer C
+            LEFT JOIN Product P ON C.Customer_ID = P.Customer_ID
+            GROUP BY C.Customer_ID
+        `);
+        res.json({ success: true, customers });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Customer directory fetch failed' });
+    }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

@@ -13,6 +13,8 @@ import {
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [requests, setRequests] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [allCustomers, setAllCustomers] = useState([]);
   const [stats, setStats] = useState({ total: 0, pending: 0, completed: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const { isDark, toggleTheme } = useTheme();
@@ -32,19 +34,33 @@ const AdminDashboard = () => {
   const fetchAdminData = async () => {
     try {
       setIsLoading(true);
-      const res = await axios.get('http://localhost:5000/service-status'); 
-      if (res.data.success) {
-         setRequests(res.data.requests);
-         const total = res.data.requests.length;
-         const completed = res.data.requests.filter(r => r.Status === 'Completed').length;
-         setStats({
-            total,
-            completed,
-            pending: total - completed
-         });
-      }
+
+      // 1. Fetch Service Requests 
+      try {
+        const res = await axios.get('http://localhost:5000/service-status');
+        if (res.data.success) {
+           const reqs = res.data.requests || [];
+           setRequests(reqs);
+           const total = reqs.length;
+           const completed = reqs.filter(r => r.Status === 'Completed').length;
+           setStats({ total, completed, pending: total - completed });
+        }
+      } catch (e) { console.error("Request fetch failed", e); }
+
+      // 2. Fetch All Products
+      try {
+        const res = await axios.get('http://localhost:5000/admin/all-products');
+        if (res.data.success) setAllProducts(res.data.products || []);
+      } catch (e) { console.error("Inventory fetch failed", e); }
+
+      // 3. Fetch All Customers
+      try {
+        const res = await axios.get('http://localhost:5000/admin/all-customers');
+        if (res.data.success) setAllCustomers(res.data.customers || []);
+      } catch (e) { console.error("Customer fetch failed", e); }
+
     } catch (err) {
-      toast.error("Failed to fetch system records.");
+      toast.error("Authority sync failed. Showing offline registry.");
     } finally {
       setIsLoading(false);
     }
@@ -77,11 +93,24 @@ const AdminDashboard = () => {
     { id: 'reports', label: 'System Logs', icon: Terminal },
   ];
 
-  const filteredRequests = requests.filter(req => 
-    req.Product_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    req.First_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    req.Last_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    req.Request_ID?.toString().includes(searchQuery)
+  const filteredRequests = (requests || []).filter(req => 
+    req?.Product_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    req?.First_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    req?.Last_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    req?.Request_ID?.toString().includes(searchQuery)
+  );
+
+  const filteredProducts = (allProducts || []).filter(prod => 
+    prod?.Product_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    prod?.Model_Number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    prod?.First_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    prod?.Last_Name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredCustomers = (allCustomers || []).filter(cust => 
+    cust?.First_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    cust?.Last_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    cust?.Email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -347,7 +376,7 @@ const AdminDashboard = () => {
                                             <label className="block text-[11px] font-bold text-text-secondary uppercase tracking-widest mb-4 opacity-60">Assigned Technician</label>
                                             <div className="relative group">
                                                <User className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary opacity-30 group-focus-within:text-brand transition-colors" />
-                                               <input name="technician" defaultValue={req.Technician_Name} className="premium-input w-full pl-16 py-4 text-[14px] bg-bg-primary text-text-primary" placeholder="Technician Name..." />
+                                               <input name="technician" defaultValue={req.TechnicianName} className="premium-input w-full pl-16 py-4 text-[14px] bg-bg-primary text-text-primary" placeholder="Technician Name..." />
                                             </div>
                                          </div>
                                          <div>
@@ -402,7 +431,130 @@ const AdminDashboard = () => {
                 </div>
               )}
 
-              {/* Other tabs follow same premium pattern */}
+              {activeTab === 'database' && (
+                <div className="space-y-12 animate-in">
+                   <div className="flex justify-between items-center mb-10 px-2">
+                      <div>
+                         <h2 className="text-4xl font-bold text-text-primary tracking-tight mb-2">Global <span className="text-brand">Inventory.</span></h2>
+                         <p className="text-text-secondary font-semibold text-xs tracking-widest uppercase opacity-60">Master product registry & hardware database</p>
+                      </div>
+                   </div>
+
+                   <div className="bg-bg-secondary rounded-[3rem] border border-border-color overflow-hidden shadow-sm">
+                      <div className="overflow-x-auto">
+                         <table className="w-full text-left border-collapse">
+                            <thead>
+                               <tr className="border-b border-border-color bg-bg-primary/30">
+                                  <th className="px-10 py-8 text-[10px] font-black uppercase tracking-widest text-text-secondary opacity-60">Product Details</th>
+                                  <th className="px-10 py-8 text-[10px] font-black uppercase tracking-widest text-text-secondary opacity-60">Owner Identity</th>
+                                  <th className="px-10 py-8 text-[10px] font-black uppercase tracking-widest text-text-secondary opacity-60">Purchase History</th>
+                                  <th className="px-10 py-8 text-[10px] font-black uppercase tracking-widest text-text-secondary opacity-60">Authority Status</th>
+                               </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border-color">
+                               {filteredProducts.map(prod => (
+                                  <tr key={prod.Product_ID} className="group hover:bg-bg-primary/50 transition-colors">
+                                     <td className="px-10 py-8">
+                                        <div className="flex items-center gap-5">
+                                           <div className="p-3 bg-bg-primary rounded-xl border border-border-color text-brand">
+                                              <Box className="w-6 h-6"/>
+                                           </div>
+                                           <div>
+                                              <p className="font-bold text-text-primary text-[15px]">{prod.Product_Name}</p>
+                                              <p className="text-[11px] font-mono text-text-secondary opacity-60">SN-{prod.Model_Number}</p>
+                                           </div>
+                                        </div>
+                                     </td>
+                                     <td className="px-10 py-8">
+                                        <div className="flex items-center gap-4">
+                                           <div className="w-10 h-10 rounded-full bg-brand p-0.5">
+                                              <div className="w-full h-full rounded-full bg-bg-secondary overflow-hidden">
+                                                 <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${prod.First_Name}`} alt="User" className="w-full h-full object-cover"/>
+                                              </div>
+                                           </div>
+                                           <div>
+                                              <p className="font-bold text-text-primary text-[13px]">{prod.First_Name} {prod.Last_Name}</p>
+                                              <p className="text-[10px] font-bold text-text-secondary opacity-40 uppercase tracking-widest">Premium User</p>
+                                           </div>
+                                        </div>
+                                     </td>
+                                     <td className="px-10 py-8">
+                                        <p className="font-bold text-text-primary text-[13px]">{new Date(prod.Purchase_Date).toLocaleDateString()}</p>
+                                        <p className="text-[10px] font-bold text-text-secondary opacity-40 uppercase tracking-widest">Entry Date</p>
+                                     </td>
+                                     <td className="px-10 py-8">
+                                        <span className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-[0.1em] border ${
+                                          prod.IsUnderWarranty 
+                                          ? 'border-emerald-500/20 bg-emerald-500/5 text-emerald-600' 
+                                          : 'border-red-500/20 bg-red-500/5 text-red-600'
+                                        }`}>
+                                          {prod.IsUnderWarranty ? 'Protected' : 'Expired'}
+                                        </span>
+                                     </td>
+                                  </tr>
+                               ))}
+                            </tbody>
+                         </table>
+                         {filteredProducts.length === 0 && (
+                            <div className="py-32 text-center">
+                               <Database className="w-16 h-16 text-text-secondary mx-auto mb-6 opacity-10"/>
+                               <p className="text-text-secondary font-black uppercase tracking-widest text-[11px] opacity-40">Global registry is empty or no matches found.</p>
+                            </div>
+                         )}
+                      </div>
+                   </div>
+                </div>
+              )}
+
+              {activeTab === 'customers' && (
+                <div className="space-y-12 animate-in">
+                   <div className="flex justify-between items-center mb-10 px-2">
+                      <div>
+                         <h2 className="text-4xl font-bold text-text-primary tracking-tight mb-2">Client <span className="text-brand">Base.</span></h2>
+                         <p className="text-text-secondary font-semibold text-xs tracking-widest uppercase opacity-60">Directory of registered end-users and organizations</p>
+                      </div>
+                   </div>
+
+                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                      {filteredCustomers.map(cust => (
+                         <div key={cust.Customer_ID} className="bg-bg-secondary p-10 rounded-[3rem] border border-border-color shadow-sm group hover:shadow-xl transition-all cursor-default">
+                            <div className="flex justify-between items-start mb-10">
+                               <div className="w-20 h-20 rounded-[2rem] bg-brand p-1 shadow-lg">
+                                  <div className="w-full h-full rounded-[1.8rem] bg-bg-primary overflow-hidden border border-white/10">
+                                     <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${cust.First_Name}`} alt="alt" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"/>
+                                  </div>
+                               </div>
+                               <div className="text-right">
+                                  <div className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em] opacity-40 mb-1">Products</div>
+                                  <div className="text-4xl font-black text-text-primary italic tracking-tighter">{cust.Total_Products || 0}</div>
+                               </div>
+                            </div>
+                            
+                            <h4 className="text-2xl font-bold text-text-primary mb-2 italic serif-heading">{cust.First_Name} {cust.Last_Name}</h4>
+                            <p className="text-[13px] font-medium text-text-secondary opacity-60 mb-8 truncate">{cust.Email}</p>
+                            
+                            <div className="space-y-5 border-t border-border-color pt-8 mt-2">
+                               <div className="flex items-center gap-4">
+                                  <div className="w-10 h-10 rounded-xl bg-bg-primary border border-border-color flex items-center justify-center text-text-secondary">
+                                     <MapPin className="w-4 h-4 opacity-40"/>
+                                  </div>
+                                  <p className="text-[12px] font-bold text-text-primary opacity-80 truncate">{cust.Address}</p>
+                               </div>
+                               <button className="w-full py-4 rounded-xl bg-bg-primary border border-border-color text-text-primary font-bold text-[10px] uppercase tracking-widest hover:bg-brand hover:text-bg-primary transition-all duration-300">
+                                  View System Records
+                               </button>
+                            </div>
+                         </div>
+                      ))}
+                      {filteredCustomers.length === 0 && (
+                         <div className="col-span-full py-32 text-center bg-bg-secondary border border-dashed border-border-color rounded-[3rem]">
+                            <Users className="w-16 h-16 text-text-secondary mx-auto mb-6 opacity-10"/>
+                            <p className="text-text-secondary font-black uppercase tracking-widest text-[11px] opacity-40">No registered customers found.</p>
+                         </div>
+                      )}
+                   </div>
+                </div>
+              )}
             </div>
           )}
         </main>

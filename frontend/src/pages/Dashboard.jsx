@@ -434,7 +434,7 @@ const Dashboard = () => {
                                                 <ShieldCheck className="w-4 h-4"/>
                                              </div>
                                              <div>
-                                                <div className="text-[12px] font-bold text-primary">{new Date(product.Warranty_Expiry).toLocaleDateString()}</div>
+                                                <div className="text-[12px] font-bold text-primary">{new Date(product.End_Date).toLocaleDateString()}</div>
                                                 <div className="text-[9px] font-bold text-secondary uppercase tracking-widest opacity-40">Expiration Node</div>
                                              </div>
                                           </div>
