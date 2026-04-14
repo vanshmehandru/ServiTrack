@@ -52,7 +52,7 @@ const Products = () => {
       setIsRecordsLoading(true);
       setSelectedProduct(product);
       setIsRecordsModalOpen(true);
-      const response = await fetch(`http://localhost:5000/service-status?customerId=${customerId}`);
+      const response = await fetch(`${API_URL}/service-status?customerId=${customerId}`);
       const data = await response.json();
       if (data.success) {
         // Filter records for this product
