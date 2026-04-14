@@ -150,10 +150,28 @@ app.get('/products', async (req, res) => {
 app.post('/service-request', async (req, res) => {
     try {
         const { customerId, productId, issueDescription } = req.body;
-        
+        console.log(`[REQ_START] Customer:${customerId} Product:${productId}`);
         const [customer] = await db.query(`SELECT Address FROM Customer WHERE Customer_ID = ?`, [customerId]);
+        
+        if (!customer || customer.length === 0) {
+            return res.status(404).json({ success: false, message: 'Account synchronization failed. Please re-login.' });
+        }
+
         if (!customer[0].Address) {
             return res.status(400).json({ success: false, message: 'Please update your address in profile before raising a request.' });
+        }
+
+        // Check for existing ongoing requests for this product
+        const [existing] = await db.query(
+            `SELECT Request_ID FROM ServiceRequest WHERE Product_ID = ? AND Status NOT IN ('Completed', 'Cancelled')`,
+            [productId]
+        );
+
+        if (existing.length > 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'A service request for this product is already in progress. Please check Service Tracking.' 
+            });
         }
 
         const result = await db.query(
@@ -161,25 +179,9 @@ app.post('/service-request', async (req, res) => {
             [customerId, productId, issueDescription]
         );
         const requestId = result[0].insertId;
+        console.log(`[REQ_DB] Request ID: ${requestId} initialized. Awaiting manual assignment.`);
 
-        const [warranty] = await db.query(`SELECT End_Date FROM Warranty WHERE Product_ID = ?`, [productId]);
-        let isWarrantyActive = false;
-        if (warranty.length > 0) {
-            isWarrantyActive = new Date() <= new Date(warranty[0].End_Date);
-        }
-        let initialCost = isWarrantyActive ? 0.00 : null;
-
-        const [technicians] = await db.query(`SELECT Technician_ID FROM Technician LIMIT 1`);
-        if (technicians.length > 0) {
-            const techId = technicians[0].Technician_ID;
-            await db.query(
-                `INSERT INTO ServiceRecord (Request_ID, Technician_ID, Service_Status, Service_Date, Cost) VALUES (?, ?, 'Assigned', CURDATE(), ?)`,
-                [requestId, techId, initialCost]
-            );
-            await db.query(`UPDATE ServiceRequest SET Status = 'Assigned' WHERE Request_ID = ?`, [requestId]);
-        }
-
-        res.json({ success: true, message: 'Service request raised successfully' });
+        return res.json({ success: true, message: 'Service request created and queued for technician assignment.', requestId });
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false, message: 'Server error' });

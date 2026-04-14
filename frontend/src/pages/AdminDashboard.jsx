@@ -106,25 +106,34 @@ const AdminDashboard = () => {
     { id: 'reports', label: 'System Logs', icon: Terminal },
   ];
 
-  const filteredRequests = (requests || []).filter(req => 
-    req?.Product_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    req?.First_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    req?.Last_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    req?.Request_ID?.toString().includes(searchQuery)
-  );
+  const filteredRequests = (requests || []).filter(req => {
+    const q = searchQuery.toLowerCase();
+    const fullName = `${req?.First_Name || ''} ${req?.Last_Name || ''}`.toLowerCase();
+    return (
+      req?.Product_Name?.toLowerCase().includes(q) ||
+      fullName.includes(q) ||
+      req?.Request_ID?.toString().includes(q)
+    );
+  });
 
-  const filteredProducts = (allProducts || []).filter(prod => 
-    prod?.Product_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    prod?.Model_Number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    prod?.First_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    prod?.Last_Name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = (allProducts || []).filter(prod => {
+    const q = searchQuery.toLowerCase();
+    const fullName = `${prod?.First_Name || ''} ${prod?.Last_Name || ''}`.toLowerCase();
+    return (
+      prod?.Product_Name?.toLowerCase().includes(q) ||
+      prod?.Model_Number?.toLowerCase().includes(q) ||
+      fullName.includes(q)
+    );
+  });
 
-  const filteredCustomers = (allCustomers || []).filter(cust => 
-    cust?.First_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    cust?.Last_Name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    cust?.Email?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCustomers = (allCustomers || []).filter(cust => {
+    const q = searchQuery.toLowerCase();
+    const fullName = `${cust?.First_Name || ''} ${cust?.Last_Name || ''}`.toLowerCase();
+    return (
+      fullName.includes(q) ||
+      cust?.Email?.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="min-h-screen bg-bg-primary flex font-sans overflow-hidden transition-colors duration-300">
