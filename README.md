@@ -2,7 +2,6 @@
 
 ServiTrack is a minimalist, high-end platform designed for hardware teams to manage asset registration, warranty validation, and service claim fulfillment at scale. Built with a focus on modern design aesthetics and seamless end-to-end functionality.
 
-![Feature Banner](https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1200&h=400)
 
 ## 💎 Core Architecture
 
@@ -61,11 +60,6 @@ npm run dev
 | **Technician Dispatch** | Manual assignment and oversight of service centers and specialists. |
 | **Payment Flow** | Seamless settlement of $0 (Warranty) or fixed-cost service records. |
 | **Analytics** | Admin overview of fleet health, fulfillment rates, and customer feedback. |
-
-## 🔑 Default Credentials
-
-- **Admin Account**: `admin@warranty.com` / `admin123`
-- **Sample Customer**: Register via the signup page or use existing seeds from migration.
 
 ## 🎨 Design Philosophy
 
