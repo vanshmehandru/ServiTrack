@@ -22,7 +22,13 @@ coverage/
 # Vite / Build
 dist/
 dist-ssr/
+build/
+out/
 .vite/
+.cache/
+.parcel-cache/
+.turbo/
+.vercel/
 *.local
 
 # Env
