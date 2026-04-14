@@ -19,6 +19,7 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { isDark, toggleTheme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
+  const [technicians, setTechnicians] = useState([]);
 
   const navigate = useNavigate();
 
@@ -59,6 +60,12 @@ const AdminDashboard = () => {
         if (res.data.success) setAllCustomers(res.data.customers || []);
       } catch (e) { console.error("Customer fetch failed", e); }
 
+      // 4. Fetch Technicians
+      try {
+        const res = await axios.get('http://localhost:5000/admin/technicians');
+        if (res.data.success) setTechnicians(res.data.technicians || []);
+      } catch (e) { console.error("Technician fetch failed", e); }
+
     } catch (err) {
       toast.error("Authority sync failed. Showing offline registry.");
     } finally {
@@ -72,11 +79,11 @@ const AdminDashboard = () => {
     navigate('/login');
   };
 
-  const updateRequestStatus = async (serviceId, status, cost, technician) => {
+  const updateRequestStatus = async (serviceId, requestId, status, cost, technician) => {
     const tId = toast.loading('Updating system records...');
     try {
       await axios.put('http://localhost:5000/admin/service-update', {
-        serviceId, status, cost, technician
+        serviceId, requestId, status, cost, technician
       });
       toast.success('Record updated successfully.', { id: tId });
       fetchAdminData();
@@ -213,7 +220,7 @@ const AdminDashboard = () => {
                   {/* Greeting */}
                   <div className="relative">
                     <div className="space-y-2">
-                      <h2 className="text-4xl font-bold text-text-primary italic serif-heading">
+                       <h2 className="text-4xl font-bold text-text-primary italic serif-heading">
                         Admin <span className="text-brand">Overview.</span>
                       </h2>
                       <p className="text-text-secondary font-medium max-w-2xl leading-relaxed text-lg opacity-80">
@@ -364,7 +371,8 @@ const AdminDashboard = () => {
                                      onSubmit={(e) => {
                                        e.preventDefault();
                                        updateRequestStatus(
-                                         req.Request_ID, 
+                                         req.RecordId, 
+                                         req.Request_ID,
                                          e.target.status.value, 
                                          e.target.cost.value, 
                                          e.target.technician.value
@@ -376,7 +384,16 @@ const AdminDashboard = () => {
                                             <label className="block text-[11px] font-bold text-text-secondary uppercase tracking-widest mb-4 opacity-60">Assigned Technician</label>
                                             <div className="relative group">
                                                <User className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary opacity-30 group-focus-within:text-brand transition-colors" />
-                                               <input name="technician" defaultValue={req.TechnicianName} className="premium-input w-full pl-16 py-4 text-[14px] bg-bg-primary text-text-primary" placeholder="Technician Name..." />
+                                               <select 
+                                                  name="technician" 
+                                                  defaultValue={req.TechnicianName} 
+                                                  className="premium-input w-full pl-16 py-4 text-[14px] bg-bg-primary text-text-primary appearance-none cursor-pointer"
+                                               >
+                                                  <option value="">Awaiting Assignment...</option>
+                                                  {technicians.map(t => (
+                                                     <option key={t.Technician_ID} value={t.Name}>{t.Name}</option>
+                                                  ))}
+                                               </select>
                                             </div>
                                          </div>
                                          <div>
@@ -542,7 +559,7 @@ const AdminDashboard = () => {
                                </div>
                                <button className="w-full py-4 rounded-xl bg-bg-primary border border-border-color text-text-primary font-bold text-[10px] uppercase tracking-widest hover:bg-brand hover:text-bg-primary transition-all duration-300">
                                   View System Records
-                               </button>
+                                </button>
                             </div>
                          </div>
                       ))}

@@ -13,6 +13,7 @@ import Overview from './pages/Overview';
 import Profile from './pages/Profile';
 import Products from './pages/Products';
 import Warranty from './pages/Warranty';
+import WarrantyPlans from './pages/WarrantyPlans';
 import ServiceRequest from './pages/ServiceRequest';
 import ServiceTracking from './pages/ServiceTracking';
 import History from './pages/History';
@@ -51,6 +52,7 @@ function App() {
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
           <Route path="/warranty" element={<ProtectedRoute><Warranty /></ProtectedRoute>} />
+          <Route path="/warranty-plans" element={<ProtectedRoute><WarrantyPlans /></ProtectedRoute>} />
           <Route path="/request-service" element={<ProtectedRoute><ServiceRequest /></ProtectedRoute>} />
           <Route path="/tracking" element={<ProtectedRoute><ServiceTracking /></ProtectedRoute>} />
           <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />

@@ -243,8 +243,40 @@ app.post('/feedback', async (req, res) => {
 // Admin update request
 app.put('/admin/service-update', async (req, res) => {
     try {
-        const { serviceId, status, cost, technician } = req.body;
-        if (!serviceId) return res.status(400).json({ success: false, message: 'Service ID required' });
+        const { serviceId, requestId, status, cost, technician } = req.body;
+        
+        let actualServiceId = serviceId;
+        let actualRequestId = requestId;
+
+        // If serviceId is missing, it means we might need to create a ServiceRecord for this Request
+        if (!actualServiceId && actualRequestId) {
+            const [existingRecord] = await db.query(`SELECT Service_ID FROM ServiceRecord WHERE Request_ID = ?`, [actualRequestId]);
+            if (existingRecord.length > 0) {
+                actualServiceId = existingRecord[0].Service_ID;
+            } else {
+                // Create new record
+                const [newRecord] = await db.query(
+                    `INSERT INTO ServiceRecord (Request_ID, Service_Status, Service_Date, Cost) VALUES (?, 'Assigned', CURDATE(), ?)`,
+                    [actualRequestId, cost || 0.00]
+                );
+                actualServiceId = newRecord.insertId;
+            }
+        }
+
+        if (!actualServiceId) return res.status(400).json({ success: false, message: 'Service ID or Request ID required' });
+
+        // Handle Technician: find or create
+        let techId = null;
+        if (technician) {
+            const [techs] = await db.query(`SELECT Technician_ID FROM Technician WHERE Name = ? OR Technician_ID = ? LIMIT 1`, [technician, technician]);
+            if (techs.length > 0) {
+                techId = techs[0].Technician_ID;
+            } else {
+                // Auto-create technician if name was typed and not found
+                const [insertTech] = await db.query(`INSERT INTO Technician (Name) VALUES (?)`, [technician]);
+                techId = insertTech.insertId;
+            }
+        }
 
         const [recordInfo] = await db.query(`
             SELECT W.End_Date, SR.Product_ID, SR.Request_ID
@@ -252,7 +284,7 @@ app.put('/admin/service-update', async (req, res) => {
             JOIN ServiceRequest SR ON SRec.Request_ID = SR.Request_ID
             JOIN Warranty W ON SR.Product_ID = W.Product_ID
             WHERE SRec.Service_ID = ?
-        `, [serviceId]);
+        `, [actualServiceId]);
 
         let finalCost = cost;
         if (recordInfo.length > 0) {
@@ -260,16 +292,17 @@ app.put('/admin/service-update', async (req, res) => {
             if (isUnderWarranty) {
                 finalCost = 0.00;
             }
+            if (!actualRequestId) actualRequestId = recordInfo[0].Request_ID;
         }
 
         await db.query(`
             UPDATE ServiceRecord 
-            SET Service_Status = ?, Cost = ?, Technician_ID = (SELECT Technician_ID FROM Technician WHERE Name = ? OR Technician_ID = ? LIMIT 1)
+            SET Service_Status = ?, Cost = ?, Technician_ID = ?
             WHERE Service_ID = ?
-        `, [status, finalCost, technician, technician, serviceId]);
+        `, [status, finalCost, techId, actualServiceId]);
 
-        if (recordInfo.length > 0) {
-            await db.query(`UPDATE ServiceRequest SET Status = ? WHERE Request_ID = ?`, [status, recordInfo[0].Request_ID]);
+        if (actualRequestId) {
+            await db.query(`UPDATE ServiceRequest SET Status = ? WHERE Request_ID = ?`, [status, actualRequestId]);
         }
 
         res.json({ success: true, message: 'System records updated' });
@@ -278,6 +311,42 @@ app.put('/admin/service-update', async (req, res) => {
         res.status(500).json({ success: false, message: 'Authority sync failed' });
     }
 });
+
+// Upgrade Warranty
+app.put('/upgrade-warranty', async (req, res) => {
+    try {
+        const { productId, planType, durationYears } = req.body;
+        if (!productId || !planType) return res.status(400).json({ success: false, message: 'Product ID and Plan Type required' });
+
+        const [existing] = await db.query(`SELECT Start_Date FROM Warranty WHERE Product_ID = ?`, [productId]);
+        if (existing.length === 0) return res.status(404).json({ success: false, message: 'Warranty record not found' });
+
+        const endDate = new Date();
+        endDate.setFullYear(endDate.getFullYear() + (durationYears || 1));
+
+        await db.query(`
+            UPDATE Warranty 
+            SET Warranty_Type = ?, End_Date = ?
+            WHERE Product_ID = ?
+        `, [planType, endDate, productId]);
+
+        res.json({ success: true, message: `Warranty upgraded to ${planType}` });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Upgrade failed' });
+    }
+});
+
+// New Endpoint: Get All Technicians
+app.get('/admin/technicians', async (req, res) => {
+    try {
+        const [technicians] = await db.query(`SELECT * FROM Technician`);
+        res.json({ success: true, technicians });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Fetch failed' });
+    }
+});
+
 
 // Admin: Global Registry Views
 app.get('/admin/all-products', async (req, res) => {

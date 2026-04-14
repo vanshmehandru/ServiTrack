@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { ShieldCheck, Calendar, Zap, Info, ArrowUpRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ShieldCheck, Calendar, Zap, Info, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const Warranty = () => {
+  const navigate = useNavigate();
   const [productList, setProductList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -116,7 +118,10 @@ const Warranty = () => {
             <div className="bg-brand p-10 text-bg-primary rounded-[2.5rem] shadow-xl relative group overflow-hidden">
                <h4 className="text-2xl font-bold tracking-tight mb-4 italic uppercase serif-heading">Elevate your <br/>protection.</h4>
                <p className="text-bg-primary/70 text-sm font-medium leading-relaxed mb-10 italic">Upgrade to Enterprise Ultra for accidental coverage and instant on-site technician deployment across all global hubs.</p>
-               <button className="w-full bg-bg-primary text-brand py-5 rounded-[2rem] font-bold text-[11px] uppercase tracking-widest hover:scale-[1.02] transition-all border-none cursor-pointer shadow-lg">
+               <button 
+                 onClick={() => navigate('/warranty-plans')}
+                 className="w-full bg-bg-primary text-brand py-5 rounded-[2rem] font-bold text-[11px] uppercase tracking-widest hover:scale-[1.02] transition-all border-none cursor-pointer shadow-lg"
+               >
                   Upgrade Plan
                </button>
             </div>
@@ -138,3 +143,4 @@ const Warranty = () => {
 };
 
 export default Warranty;
+

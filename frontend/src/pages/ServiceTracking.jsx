@@ -8,6 +8,11 @@ import {
 const ServiceTracking = () => {
   const [requests, setRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   
   const user = JSON.parse(localStorage.getItem('userData') || '{}');
   const customerId = user.Customer_ID;
@@ -38,6 +43,14 @@ const ServiceTracking = () => {
       default: return 5;
     }
   };
+
+  const filteredRequests = requests.filter(r => {
+    const matchesSearch = r.Product_Name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          `REQ-${r.Request_ID}`.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = filterStatus === 'All' || r.Status === filterStatus;
+    return matchesSearch && matchesFilter;
+  });
+
 
   return (
     <div className="space-y-12 font-sans">
@@ -73,11 +86,26 @@ const ServiceTracking = () => {
          <div className="p-8 border-b border-border-color flex flex-col md:flex-row justify-between items-center gap-6 bg-bg-secondary/30">
             <div className="relative flex-1 max-w-md group">
                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary opacity-30 group-focus-within:opacity-100" />
-               <input placeholder="Filter by Request ID or Product..." className="w-full bg-bg-primary border border-border-color rounded-xl pl-11 pr-4 py-3 text-[13px] font-bold focus:ring-1 focus:ring-brand outline-none text-text-primary" />
+               <input 
+                 placeholder="Filter by Request ID or Product..." 
+                 value={searchQuery}
+                 onChange={(e) => setSearchQuery(e.target.value)}
+                 className="w-full bg-bg-primary border border-border-color rounded-xl pl-11 pr-4 py-3 text-[13px] font-bold focus:ring-1 focus:ring-brand outline-none text-text-primary" 
+               />
             </div>
-            <button className="secondary-button px-8 py-3 text-[11px] font-bold uppercase tracking-widest">
-               <Filter className="w-4 h-4 opacity-50" /> Filter
-            </button>
+            <div className="flex gap-4">
+              <select 
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="secondary-button px-6 py-3 text-[11px] font-bold uppercase tracking-widest bg-bg-primary border border-border-color rounded-xl cursor-pointer"
+              >
+                <option value="All">All Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Assigned">Assigned</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
          </div>
 
          <div className="overflow-x-auto">
@@ -92,11 +120,11 @@ const ServiceTracking = () => {
                   </tr>
                </thead>
                <tbody className="divide-y divide-border-color">
-                  {isLoading ? (
-                     <tr><td colSpan="5" className="px-10 py-20 text-center animate-pulse text-text-secondary">Loading tracking data...</td></tr>
-                  ) : requests.length === 0 ? (
-                     <tr><td colSpan="5" className="px-10 py-20 text-center text-text-secondary font-medium">No active service requests found.</td></tr>
-                  ) : requests.map((r) => (
+                   {isLoading ? (
+                      <tr><td colSpan="5" className="px-10 py-20 text-center animate-pulse text-text-secondary">Loading tracking data...</td></tr>
+                   ) : filteredRequests.length === 0 ? (
+                      <tr><td colSpan="5" className="px-10 py-20 text-center text-text-secondary font-medium">No active service requests found.</td></tr>
+                   ) : filteredRequests.map((r) => (
                      <tr key={r.Request_ID} className="group hover:bg-bg-secondary transition-all duration-300">
                         <td className="px-10 py-8">
                            <div className="font-mono text-[14px] font-black text-text-primary tracking-tighter italic uppercase">REQ-{r.Request_ID}</div>
@@ -128,11 +156,17 @@ const ServiceTracking = () => {
                               <div className="text-[13px] font-bold text-text-primary">{r.TechnicianName || 'Awaiting Assignment'}</div>
                            </div>
                         </td>
-                        <td className="px-10 py-8 text-right">
-                           <button className="p-2.5 rounded-xl bg-bg-secondary text-text-secondary hover:text-text-primary border-none transition-all cursor-pointer group-hover:translate-x-1">
-                              <ChevronRight className="w-4 h-4" />
-                           </button>
-                        </td>
+                         <td className="px-10 py-8 text-right">
+                            <button 
+                              onClick={() => {
+                                setSelectedRequest(r);
+                                setIsModalOpen(true);
+                              }}
+                              className="p-2.5 rounded-xl bg-bg-secondary text-text-secondary hover:text-text-primary border-none transition-all cursor-pointer group-hover:translate-x-1"
+                            >
+                               <ChevronRight className="w-4 h-4" />
+                            </button>
+                         </td>
                      </tr>
                   ))}
                </tbody>
@@ -148,8 +182,63 @@ const ServiceTracking = () => {
             Our service requests are automatically routed to the nearest available specialist to ensure the fastest possible resolution.
          </p>
       </div>
+
+      {isModalOpen && selectedRequest && (
+        <RequestDetailModal 
+          request={selectedRequest} 
+          onClose={() => setIsModalOpen(false)} 
+        />
+      )}
     </div>
   );
 };
+
+const RequestDetailModal = ({ request, onClose }) => {
+  return (
+    <div className="fixed inset-0 z-[60000] flex items-center justify-center p-10 bg-black/40 backdrop-blur-sm animate-in">
+      <div className="absolute inset-0" onClick={onClose}></div>
+      <div 
+        className="w-full max-w-2xl bg-bg-primary border border-border-color rounded-[3rem] shadow-2xl relative z-10 overflow-hidden flex flex-col"
+        style={{ backgroundColor: 'var(--bg-primary)', opacity: 1 }}
+      >
+        <div className="p-10 border-b border-border-color bg-bg-secondary/30 flex justify-between items-center">
+          <div>
+            <div className="text-[10px] font-black text-brand uppercase tracking-widest mb-1">REQ-{request.Request_ID}</div>
+            <h3 className="text-3xl font-bold text-text-primary italic serif-heading tracking-tight">{request.Product_Name}</h3>
+          </div>
+          <button onClick={onClose} className="w-12 h-12 rounded-2xl bg-bg-primary border border-border-color flex items-center justify-center text-text-primary hover:bg-bg-secondary transition-all cursor-pointer">✕</button>
+        </div>
+        <div className="p-10 space-y-8">
+          <div className="grid grid-cols-2 gap-8">
+            <div>
+              <div className="text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-60 mb-2">Request Date</div>
+              <div className="text-[14px] font-bold text-text-primary">{new Date(request.Request_Date).toLocaleDateString()}</div>
+            </div>
+            <div>
+              <div className="text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-60 mb-2">Current Status</div>
+              <div className={`badge ${request.Status === 'Completed' ? 'badge-completed' : 'badge-pending'}`}>{request.Status}</div>
+            </div>
+            <div>
+              <div className="text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-60 mb-2">Technician</div>
+              <div className="text-[14px] font-bold text-text-primary">{request.TechnicianName || 'Awaiting Assignment'}</div>
+            </div>
+            <div>
+              <div className="text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-60 mb-2">Service Cost</div>
+              <div className="text-[14px] font-mono font-bold text-text-primary text-brand">${request.Cost || '0.00'}</div>
+            </div>
+          </div>
+          <div className="pt-8 border-t border-border-color">
+            <div className="text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-60 mb-2">Issue Description</div>
+            <p className="text-[14px] font-medium text-text-primary leading-relaxed italic">"{request.Issue_Description}"</p>
+          </div>
+        </div>
+        <div className="p-10 bg-bg-secondary/30 border-t border-border-color flex justify-end">
+          <button onClick={onClose} className="secondary-button px-8 py-3 text-[11px] font-bold uppercase tracking-widest">Close Record</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 export default ServiceTracking;
