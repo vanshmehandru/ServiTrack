@@ -42,8 +42,11 @@ function App() {
       <BrowserRouter>
         <Toaster position="top-right" />
         <Routes>
-          {/* Public Routes */}
           <Route path="/" element={<AuthRoute><Landing /></AuthRoute>} />
+          <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
+          <Route path="/signup" element={<AuthRoute><Signup /></AuthRoute>} />
+
+          {/* Protected Dashboard Routes */}
           <Route path="/dashboard" element={<Navigate to="/products" replace />} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Plus, Search, ShieldCheck, Filter, MoreVertical, LayoutGrid, List, Activity, Zap, Trash2, ExternalLink } from 'lucide-react';
+import { Box, Plus, Search, ShieldCheck, Filter, MoreVertical, LayoutGrid, List, Trash2, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Products = () => {
@@ -72,8 +72,8 @@ const Products = () => {
   };
 
   const filteredProducts = productList.filter(p => {
-    const matchesSearch = p.Product_Name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          p.Model_Number.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (p.Product_Name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (p.Model_Number || '').toLowerCase().includes(searchQuery.toLowerCase());
     
     if (filterStatus === 'all') return matchesSearch;
     const isUnderWarranty = p.IsUnderWarranty;
@@ -83,17 +83,20 @@ const Products = () => {
 
   return (
     <div className="space-y-12 font-sans transition-colors duration-300">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
-        <div className="relative">
+      {/* Header - Moved button to the left to avoid overlap with profile dropdown */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="flex items-center gap-8 flex-wrap">
           <div className="space-y-1">
             <h2 className="text-4xl font-bold tracking-tight text-text-primary italic serif-heading">Product Inventory.</h2>
-            <p className="text-lg text-text-secondary font-medium opacity-80">Manage your verified products and warranty coverage.</p>
+            <p className="text-lg text-text-secondary font-medium opacity-80">Oversee your assets and active coverage.</p>
           </div>
+          <button 
+            onClick={() => setIsModalOpen(true)} 
+            className="primary-button px-8 py-3.5 shadow-xl active:scale-95 transition-all text-[12px] font-black uppercase tracking-widest flex items-center gap-3"
+          >
+            <Plus className="w-5 h-5" /> Add New Product
+          </button>
         </div>
-        <button onClick={() => setIsModalOpen(true)} className="primary-button px-8 py-4 shadow-lg shadow-brand/20">
-          <Plus className="w-5 h-5" /> Add New Product
-        </button>
       </div>
 
       {/* Stats Mini Grid */}
@@ -122,18 +125,18 @@ const Products = () => {
               placeholder="Search products by serial or name..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-bg-primary border border-border-color rounded-xl pl-11 pr-4 py-3 text-[13px] font-medium focus:ring-1 focus:ring-brand outline-none transition-all text-text-primary" 
+              className="w-full bg-bg-primary border border-border-color rounded-xl pl-11 pr-4 py-3 text-[13px] font-medium focus:ring-1 focus:ring-brand outline-none transition-all text-text-primary shadow-sm" 
             />
          </div>
          <div className="flex gap-4">
-            <div className="flex bg-bg-primary p-1 rounded-xl border border-border-color">
+            <div className="flex bg-bg-primary p-1 rounded-xl border border-border-color shadow-sm">
                {['all', 'active', 'expired'].map((status) => (
                  <button
                    key={status}
                    onClick={() => setFilterStatus(status)}
                    className={`px-4 py-2 rounded-lg text-[11px] font-bold uppercase tracking-widest border-none transition-all cursor-pointer ${
                      filterStatus === status 
-                       ? 'bg-brand text-bg-primary shadow-sm' 
+                       ? 'bg-brand text-bg-primary shadow-md' 
                        : 'bg-transparent text-text-secondary opacity-60 hover:opacity-100'
                    }`}
                  >
@@ -141,11 +144,25 @@ const Products = () => {
                  </button>
                ))}
             </div>
-            <div className="bg-bg-primary p-1 rounded-xl border border-border-color flex gap-1">
-               <button onClick={()=>setViewMode('table')} className={`p-2 rounded-lg transition-all border-none cursor-pointer ${viewMode === 'table' ? 'bg-brand text-bg-primary shadow-sm' : 'bg-transparent text-text-secondary opacity-40 hover:opacity-100'}`}>
+            <div className="bg-bg-primary p-1 rounded-xl border-2 border-border-color flex gap-1 shadow-sm overflow-hidden">
+               <button 
+                onClick={()=>setViewMode('table')} 
+                className={`flex-1 p-2.5 rounded-lg transition-all border-none cursor-pointer flex items-center justify-center min-w-[48px] ${
+                  viewMode === 'table' 
+                  ? 'bg-bg-secondary text-text-primary shadow-md ring-1 ring-border-color/20' 
+                  : 'bg-transparent text-text-secondary opacity-30 hover:opacity-100'
+                }`}
+               >
                   <List className="w-4 h-4" />
                </button>
-               <button onClick={()=>setViewMode('grid')} className={`p-2 rounded-lg transition-all border-none cursor-pointer ${viewMode === 'grid' ? 'bg-brand text-bg-primary shadow-sm' : 'bg-transparent text-text-secondary opacity-40 hover:opacity-100'}`}>
+               <button 
+                onClick={()=>setViewMode('grid')} 
+                className={`flex-1 p-2.5 rounded-lg transition-all border-none cursor-pointer flex items-center justify-center min-w-[48px] ${
+                  viewMode === 'grid' 
+                  ? 'bg-bg-secondary text-text-primary shadow-md ring-1 ring-border-color/20' 
+                  : 'bg-transparent text-text-secondary opacity-30 hover:opacity-100'
+                }`}
+               >
                   <LayoutGrid className="w-4 h-4" />
                </button>
             </div>
@@ -179,8 +196,8 @@ const Products = () => {
                                </div>
                                <div>
                                   <div className="text-[15px] font-bold text-text-primary tracking-tight">{p.Product_Name}</div>
-                                  <div className="text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-40 mt-1">Verified Unit</div>
-                               </div>
+                                  <div className="text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-40 mt-1 uppercase italic">Verified Unit</div>
+                                </div>
                            </div>
                         </td>
                         <td className="px-10 py-8">
@@ -195,26 +212,26 @@ const Products = () => {
                            </div>
                         </td>
                         <td className="px-10 py-8">
-                           <div className={`badge ${p.IsUnderWarranty ? 'badge-completed' : 'badge-pending'}`}>
+                           <span className={`badge ${p.IsUnderWarranty ? 'badge-completed' : 'badge-pending'}`}>
                               {p.IsUnderWarranty ? 'Active' : 'Expired'}
-                           </div>
+                           </span>
                         </td>
                         <td className="px-10 py-8 text-right relative">
                            <button 
                              onClick={() => setActiveMenu(activeMenu === p.Product_ID ? null : p.Product_ID)}
-                             className="p-2.5 rounded-xl bg-bg-primary text-text-secondary hover:text-text-primary border border-border-color transition-all cursor-pointer shadow-sm"
+                             className="p-2.5 rounded-xl bg-bg-primary text-text-secondary hover:text-text-primary border border-border-color transition-all cursor-pointer shadow-sm active:scale-90"
                            >
                               <MoreVertical className="w-4 h-4" />
                            </button>
                            
                            {activeMenu === p.Product_ID && (
                              <>
-                               <div className="fixed inset-0 z-10" onClick={() => setActiveMenu(null)}></div>
-                               <div className="absolute right-10 top-16 w-52 bg-bg-primary border border-border-color rounded-2xl shadow-2xl z-20 py-3 animate-in overflow-hidden">
-                                  <button className="w-full text-left px-5 py-3 text-[13px] font-bold text-text-primary hover:bg-bg-secondary flex items-center gap-3 border-none bg-transparent cursor-pointer transition-colors">
+                               <div className="fixed inset-0 z-[100]" onClick={() => setActiveMenu(null)}></div>
+                               <div className="absolute right-10 top-16 w-52 bg-bg-primary border-2 border-border-color rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.3)] z-[110] py-3 animate-in overflow-hidden">
+                                  <button className="w-full text-left px-5 py-3.5 text-[13px] font-bold text-text-primary hover:bg-bg-secondary flex items-center gap-4 border-none bg-transparent cursor-pointer transition-colors">
                                      <ExternalLink className="w-4 h-4 opacity-40" /> View Records
                                   </button>
-                                  <button className="w-full text-left px-5 py-3 text-[13px] font-bold text-red-500 hover:bg-red-50/10 flex items-center gap-3 border-none bg-transparent cursor-pointer transition-colors">
+                                  <button className="w-full text-left px-5 py-3.5 text-[13px] font-bold text-red-500 hover:bg-red-50/50 flex items-center gap-4 border-none bg-transparent cursor-pointer transition-colors">
                                      <Trash2 className="w-4 h-4 opacity-40" /> Decommission
                                   </button>
                                </div>
@@ -228,24 +245,29 @@ const Products = () => {
          </div>
       </div>
 
-      {/* Enrollment Modal */}
+      {/* Enrollment Modal - SOLID THEME FIX */}
       {isModalOpen && (
-         <div className="fixed inset-0 z-[100] flex items-center justify-center p-10 animate-in">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={()=>setIsModalOpen(false)}></div>
-            <div className="w-full max-w-lg p-14 bg-bg-primary relative shadow-2xl z-10 border border-border-color rounded-[3rem]">
+         <div className="fixed inset-0 z-[50000] flex items-center justify-center p-10 select-none isolate">
+            {/* Transparent backdrop layer to catch clicks without obscuring background */}
+            <div className="absolute inset-0 bg-transparent cursor-default" onClick={()=>setIsModalOpen(false)}></div>
+            
+            <div 
+               className="w-full max-w-lg p-14 relative shadow-[0_32px_128px_-16px_rgba(0,0,0,0.5)] z-20 border border-border-color rounded-[3.5rem] animate-in"
+               style={{ backgroundColor: 'var(--bg-primary)', opacity: 1 }}
+            >
                <div className="bg-brand p-5 rounded-[2rem] w-max mb-10 shadow-xl shadow-brand/20">
                   <Box className="w-10 h-10 text-bg-primary" />
                </div>
-               <h3 className="text-4xl font-bold tracking-tight text-text-primary italic serif-heading mb-3">Register Product.</h3>
-               <p className="text-md text-text-secondary font-medium mb-12 opacity-80 leading-relaxed">Add a product to your registry to enable verified warranty coverage and service requests.</p>
+               <h3 className="text-4xl font-black tracking-tighter text-text-primary italic serif-heading mb-4 text-center">Register Product.</h3>
+               <p className="text-sm text-text-secondary font-medium mb-12 opacity-80 leading-relaxed italic text-center px-4">Synchronize a new hardware unit with our global warranty registry.</p>
                
                <form onSubmit={handleAddProduct} className="space-y-8">
                   <div className="space-y-2">
                      <label className="text-[10px] font-bold uppercase text-text-secondary tracking-widest ml-1 opacity-60">Product Name</label>
                      <input 
                       required 
-                      placeholder="E.G. SMART MONITOR 4K" 
-                      className="premium-input w-full p-4 text-[14px] font-bold italic uppercase" 
+                      placeholder="E.G. ENTERPRISE NODE-X" 
+                      className="premium-input w-full p-4 text-[14px] font-black italic uppercase bg-bg-secondary border-2 border-border-color focus:border-brand" 
                       value={newProduct.productName}
                       onChange={e => setNewProduct({...newProduct, productName: e.target.value})}
                      />
@@ -256,26 +278,26 @@ const Products = () => {
                         <input 
                           required 
                           placeholder="SN-XXXX" 
-                          className="premium-input w-full p-4 text-[14px] font-bold font-mono tracking-widest" 
+                          className="premium-input w-full p-4 text-[14px] font-bold font-mono tracking-widest bg-bg-secondary border-2 border-border-color focus:border-brand" 
                           value={newProduct.modelNumber}
                           onChange={e => setNewProduct({...newProduct, modelNumber: e.target.value})}
                         />
                      </div>
                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase text-text-secondary tracking-widest ml-1 opacity-60">Date of Purchase</label>
+                        <label className="text-[10px] font-bold uppercase text-text-secondary tracking-widest ml-1 opacity-60">Purchase Date</label>
                         <input 
                           required 
                           type="date" 
-                          className="premium-input w-full p-4 text-[14px] font-bold" 
+                          className="premium-input w-full p-4 text-[14px] font-bold bg-bg-secondary border-2 border-border-color focus:border-brand" 
                           value={newProduct.purchaseDate}
                           onChange={e => setNewProduct({...newProduct, purchaseDate: e.target.value})}
                         />
                      </div>
                   </div>
                   
-                  <div className="pt-8 flex gap-4">
-                     <button type="button" onClick={()=>setIsModalOpen(false)} className="secondary-button flex-1 py-4 text-[11px] font-bold uppercase tracking-widest">Abort</button>
-                     <button type="submit" className="primary-button flex-[2] py-4 text-[11px] font-bold uppercase tracking-widest shadow-lg shadow-brand/20">Confirm Registration</button>
+                  <div className="pt-8 flex gap-5">
+                     <button type="button" onClick={()=>setIsModalOpen(false)} className="secondary-button flex-1 py-4 text-[11px] font-bold uppercase tracking-widest hover:bg-bg-secondary transition-all">Abort</button>
+                     <button type="submit" className="primary-button flex-[2] py-4 text-[11px] font-black uppercase tracking-widest shadow-2xl shadow-brand/30 hover:scale-[1.02] active:scale-95 transition-all">Enroll Product</button>
                   </div>
                </form>
             </div>

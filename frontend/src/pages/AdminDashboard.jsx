@@ -135,7 +135,7 @@ const AdminDashboard = () => {
       <div className="flex-1 flex flex-col h-screen overflow-hidden bg-bg-primary">
         
         {/* Top Header */}
-        <header className="h-20 bg-bg-secondary border-b border-border-color px-10 flex items-center justify-between z-40 shrink-0">
+        <header className="h-20 bg-bg-secondary border-b border-border-color px-10 flex items-center justify-between z-40 shrink-0 shadow-sm">
           <div className="flex-1 max-w-xl relative group">
              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary opacity-30 group-focus-within:opacity-100 transition-opacity" />
              <input 

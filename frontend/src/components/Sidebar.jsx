@@ -59,25 +59,11 @@ const Sidebar = () => {
         })}
       </nav>
 
-      <div className="p-6 border-t border-border-color space-y-2">
-        <button 
-          onClick={() => navigate('/profile')}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all border-none cursor-pointer ${
-            location.pathname === '/profile' 
-              ? 'bg-bg-secondary text-black' 
-              : 'text-text-secondary hover:bg-bg-secondary'
-          }`}
-        >
-          <User className="w-4 h-4" />
-          <span className="text-[13px] font-semibold">Profile</span>
-        </button>
-        <button 
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-all border-none cursor-pointer"
-        >
-          <LogOut className="w-4 h-4" />
-          <span className="text-[13px] font-semibold">Sign Out</span>
-        </button>
+      <div className="p-6 border-t border-border-color">
+         <div className="p-6 bg-bg-secondary rounded-2xl border border-border-color">
+            <div className="text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-60 mb-2">Support</div>
+            <p className="text-[11px] text-text-secondary leading-relaxed font-medium">Need help? Contact our dedicated global support team.</p>
+         </div>
       </div>
     </aside>
   );

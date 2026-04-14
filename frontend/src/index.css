@@ -70,7 +70,7 @@ h1, h2, h3, .serif-heading {
 
 @utility premium-input {
   background-color: var(--bg-primary);
-  border: 1px solid var(--border-color);
+  border: 1.5px solid var(--border-color);
   color: var(--text-primary);
   border-radius: 0.75rem; /* rounded-xl */
   padding: 0.875rem 1.25rem;
@@ -83,6 +83,7 @@ h1, h2, h3, .serif-heading {
     box-shadow: 0 0 0 1px var(--text-primary);
   }
 }
+
 
 @utility primary-button {
   background: var(--brand);
