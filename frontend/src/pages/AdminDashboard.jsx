@@ -7,7 +7,7 @@ import {
   LogOut, Box, Wrench, ShieldCheck, Activity, Users,
   Search, Moon, Sun, Plus, ChevronRight, BarChart3,
   Layers, Database, Terminal, ArrowRight, Zap, Target,
-  User, MapPin, Star, MessageSquare, CheckCircle2
+  User, MapPin, Star, MessageSquare, CheckCircle2, TrendingUp
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -110,7 +110,7 @@ const AdminDashboard = () => {
     { id: 'requests', label: 'Service Queue', icon: Wrench },
     { id: 'database', label: 'Product Inventory', icon: Box },
     { id: 'customers', label: 'Customers', icon: Users },
-    { id: 'reports', label: 'System Logs', icon: Terminal },
+    { id: 'reports', label: 'Sentiment Audit', icon: MessageSquare },
   ];
 
   const filteredRequests = (requests || []).filter(req => {
@@ -345,7 +345,10 @@ const AdminDashboard = () => {
                         </div>
                         
                         <div className="pt-8 mt-4 border-t border-border-color/50 text-center">
-                           <button className="text-[10px] font-black uppercase tracking-widest text-text-secondary hover:text-brand transition-colors">
+                           <button 
+                             onClick={() => setActiveTab('reports')}
+                             className="text-[10px] font-black uppercase tracking-widest text-text-secondary hover:text-brand transition-colors"
+                           >
                               View Full Sentiment Analysis
                            </button>
                         </div>
@@ -654,42 +657,75 @@ const AdminDashboard = () => {
               )}
 
               {activeTab === 'reports' && (
-                <div className="space-y-12 animate-in">
+                <div className="space-y-12 animate-in pb-20">
                    <div className="flex justify-between items-center mb-10 px-2">
                       <div>
-                         <h2 className="text-4xl font-bold text-text-primary tracking-tight mb-2">Authority <span className="text-brand">Activity.</span></h2>
-                         <p className="text-text-secondary font-semibold text-xs tracking-widest uppercase opacity-60">Real-time system health & administrative action logs</p>
+                         <h2 className="text-4xl font-bold text-text-primary tracking-tight mb-2">Sentiment <span className="text-brand">Audit.</span></h2>
+                         <p className="text-text-secondary font-semibold text-xs tracking-widest uppercase opacity-60">Complete history of customer satisfaction and service feedback</p>
+                      </div>
+                      <div className="flex items-center gap-4">
+                         <div className="px-6 py-3 bg-bg-secondary border border-border-color rounded-2xl flex items-center gap-3">
+                            <TrendingUp className="w-4 h-4 text-brand" />
+                            <span className="text-[11px] font-bold text-text-primary uppercase tracking-widest">Growth: +12%</span>
+                         </div>
                       </div>
                    </div>
 
-                   <div className="bg-bg-secondary border border-border-color rounded-[3rem] overflow-hidden">
-                      <div className="p-10 bg-bg-primary/30 border-b border-border-color flex items-center justify-between">
-                         <div className="flex items-center gap-4">
-                            <div className="w-3 h-3 bg-brand rounded-full animate-pulse shadow-[0_0_10px_rgba(var(--brand-rgb),0.5)]"></div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-text-primary">System Core: Operational</span>
-                         </div>
-                         <span className="text-[10px] font-mono font-bold text-text-secondary opacity-40">Uptime: 432:12:05</span>
-                      </div>
-                      <div className="p-0 overflow-hidden">
-                         <div className="font-mono text-[13px] leading-relaxed divide-y divide-border-color/30">
-                            {[
-                               { t: '17:42:05', e: 'DB_SYNC', m: 'Global warranty registry synchronized with node-beta.', s: 'Success' },
-                               { t: '16:15:22', e: 'SEC_AUDIT', m: 'Auth token rotation completed for admin cluster.', s: 'Info' },
-                               { t: '15:20:10', e: 'MAINT_JOB', m: 'Automated cleanup of expired service tokens.', s: 'Success' },
-                               { t: '14:05:44', e: 'ENTRY_NEW', m: 'Hardware unit SN-98234-X added to registry.', s: 'Success' },
-                               { t: '12:30:12', e: 'REPORT_GEN', m: 'Monthly technical fulfillment report generated.', s: 'Info' },
-                               { t: '09:12:33', e: 'NET_CHECK', m: 'Heartbeat signal verified across all regions.', s: 'Success' },
-                            ].map((log, i) => (
-                               <div key={i} className="px-10 py-6 flex items-start gap-8 hover:bg-bg-primary/50 transition-colors">
-                                  <span className="text-text-secondary opacity-40 shrink-0">{log.t}</span>
-                                  <span className={`badge shrink-0 min-w-[100px] text-center ${log.s === 'Success' ? 'badge-completed' : 'badge-pending'}`}>{log.e}</span>
-                                  <span className="text-text-primary font-medium">{log.m}</span>
-                               </div>
-                            ))}
-                         </div>
-                      </div>
-                      <div className="p-10 bg-bg-primary/30 border-t border-border-color flex justify-center">
-                         <button className="text-[10px] font-black uppercase tracking-[.3em] text-text-secondary hover:text-brand transition-colors">View Archival Records</button>
+                   <div className="bg-bg-secondary border border-border-color rounded-[3rem] overflow-hidden shadow-sm">
+                      <div className="overflow-x-auto">
+                         <table className="w-full text-left border-collapse">
+                            <thead>
+                               <tr className="border-b border-border-color bg-bg-primary/30">
+                                  <th className="p-8 text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em]">Customer Identity</th>
+                                  <th className="p-8 text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em]">Hardware Scope</th>
+                                  <th className="p-8 text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em]">Satisfaction Rate</th>
+                                  <th className="p-8 text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em]">Client Narrative</th>
+                                  <th className="p-8 text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em]">Ref. Date</th>
+                               </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border-color/30">
+                               {dashboardData.feedbacks.map((fb, i) => (
+                                  <tr key={i} className="group hover:bg-bg-primary/50 transition-all duration-300">
+                                     <td className="p-8">
+                                        <div className="flex items-center gap-4">
+                                           <div className="w-10 h-10 rounded-xl bg-bg-primary flex items-center justify-center text-brand border border-border-color">
+                                              <User className="w-4 h-4" />
+                                           </div>
+                                           <div>
+                                              <p className="font-bold text-text-primary text-[14px] leading-tight mb-0.5">{fb.First_Name} {fb.Last_Name}</p>
+                                              <p className="text-[10px] text-text-secondary uppercase font-bold tracking-widest opacity-40">Verified User</p>
+                                           </div>
+                                        </div>
+                                     </td>
+                                     <td className="p-8">
+                                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-bg-primary border border-border-color rounded-lg">
+                                           <Box className="w-3 h-3 text-brand opacity-40" />
+                                           <span className="text-[11px] font-bold text-text-primary opacity-80">{fb.Product_Name}</span>
+                                        </div>
+                                     </td>
+                                     <td className="p-8">
+                                        <div className="flex gap-0.5">
+                                           {[...Array(5)].map((_, idx) => (
+                                              <Star key={idx} className={`w-3.5 h-3.5 ${idx < fb.Rating ? 'fill-brand text-brand' : 'text-text-secondary opacity-20'}`} />
+                                           ))}
+                                        </div>
+                                     </td>
+                                     <td className="p-8 max-w-md">
+                                        <p className="text-[13px] text-text-primary leading-relaxed font-medium line-clamp-2 italic">"{fb.Comments}"</p>
+                                     </td>
+                                     <td className="p-8">
+                                        <span className="text-[11px] font-mono font-bold text-text-secondary opacity-40">{new Date(fb.Created_At).toLocaleDateString()}</span>
+                                     </td>
+                                  </tr>
+                               ))}
+                            </tbody>
+                         </table>
+                         {dashboardData.feedbacks.length === 0 && (
+                            <div className="py-32 text-center bg-bg-primary/10">
+                               <MessageSquare className="w-16 h-16 text-text-secondary mx-auto mb-6 opacity-10"/>
+                               <p className="text-text-secondary font-black uppercase tracking-widest text-[11px] opacity-40">Sentiment vault contains no entries.</p>
+                            </div>
+                         )}
                       </div>
                    </div>
                 </div>

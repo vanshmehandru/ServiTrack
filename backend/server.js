@@ -422,8 +422,7 @@ app.get('/admin/dashboard-stats', async (req, res) => {
             JOIN ServiceRequest SR ON SRec.Request_ID = SR.Request_ID 
             JOIN Customer C ON SR.Customer_ID = C.Customer_ID 
             JOIN Product P ON SR.Product_ID = P.Product_ID 
-            ORDER BY F.Created_At DESC 
-            LIMIT 5
+            ORDER BY F.Created_At DESC
         `);
 
         res.json({ 
