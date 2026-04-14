@@ -18,6 +18,7 @@ import ServiceTracking from './pages/ServiceTracking';
 import History from './pages/History';
 import Payment from './pages/Payment';
 import Feedback from './pages/Feedback';
+import AdminDashboard from './pages/AdminDashboard';
 
 // Route Protection Component
 const ProtectedRoute = ({ children }) => {
@@ -31,7 +32,7 @@ const ProtectedRoute = ({ children }) => {
 // Protect against logged-in users visiting auth pages
 const AuthRoute = ({ children }) => {
   const role = localStorage.getItem('userRole');
-  if (role) return <Navigate to="/dashboard" replace />;
+  if (role) return <Navigate to="/products" replace />;
   return children;
 };
 
@@ -43,11 +44,7 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<AuthRoute><Landing /></AuthRoute>} />
-          <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
-          <Route path="/signup" element={<AuthRoute><Signup /></AuthRoute>} />
-
-          {/* Protected Internal Routes */}
-          <Route path="/dashboard" element={<ProtectedRoute><Overview /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<Navigate to="/products" replace />} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
           <Route path="/warranty" element={<ProtectedRoute><Warranty /></ProtectedRoute>} />
@@ -56,6 +53,7 @@ function App() {
           <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
           <Route path="/payment" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
           <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
+          <Route path="/admin" element={<AdminDashboard />} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

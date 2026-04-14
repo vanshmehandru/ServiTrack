@@ -30,13 +30,13 @@ const Signup = () => {
       const data = await response.json();
       
       if (data.success) {
-        toast.success(data.message || 'Enrollment complete. Welcome!', { id: tId });
+        toast.success(data.message || 'Account created successfully!', { id: tId });
         navigate('/login');
       } else {
-        toast.error(data.message || 'Enrollment failed', { id: tId });
+        toast.error(data.message || 'Registration failed', { id: tId });
       }
     } catch (err) {
-      toast.error('Could not connect to the security server.', { id: tId });
+      toast.error('Could not connect to the server.', { id: tId });
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -44,21 +44,21 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-bg-primary flex items-center justify-center p-6 font-sans">
+    <div className="min-h-screen bg-bg-primary flex items-center justify-center p-6 font-sans transition-colors duration-300">
       
       <Link to="/" className="absolute top-10 left-10 flex items-center gap-2 group transition-all">
         <ArrowLeft className="w-4 h-4 text-text-secondary" />
         <span className="text-[11px] font-bold text-text-secondary uppercase tracking-widest">Back</span>
       </Link>
 
-      <div className="w-full max-w-[480px] bg-white p-12 border border-border-color rounded-[2rem] shadow-sm animate-in">
+      <div className="w-full max-w-[480px] bg-bg-secondary p-12 border border-border-color rounded-[2.5rem] shadow-sm animate-in">
         
         <div className="flex flex-col items-center mb-10 text-center">
-           <div className="bg-black p-2 rounded-xl mb-6 shadow-xl shadow-black/10">
-             <UserPlus className="w-8 h-8 text-white" />
+           <div className="bg-brand p-3 rounded-xl mb-6 shadow-xl">
+             <UserPlus className="w-8 h-8 text-bg-primary" />
            </div>
-           <h2 className="text-3xl font-bold text-text-primary mb-2 tracking-tight italic serif-heading">Start Enrollment.</h2>
-           <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Enterprise Registration</p>
+           <h2 className="text-3xl font-bold text-text-primary mb-2 tracking-tight italic serif-heading">Create Account.</h2>
+           <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Join WarrantySys</p>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-6">
@@ -144,7 +144,7 @@ const Signup = () => {
                     type="text" 
                     required 
                     className="premium-input w-full pl-11 py-3.5 text-[14px]" 
-                    placeholder="123 Sector, Zone A" 
+                    placeholder="123 Street, City" 
                     value={formData.address}
                     onChange={e => setFormData({...formData, address: e.target.value})}
                   />
@@ -152,7 +152,7 @@ const Signup = () => {
           </div>
           
           <div className="space-y-2">
-            <label className="block text-[10px] font-bold text-text-secondary uppercase tracking-widest ml-1">Security Key</label>
+            <label className="block text-[10px] font-bold text-text-secondary uppercase tracking-widest ml-1">Password</label>
             <div className="relative group">
                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary opacity-30 group-focus-within:opacity-100 transition-opacity" />
                <input 
@@ -172,10 +172,10 @@ const Signup = () => {
              className="primary-button w-full mt-4 py-4 text-[13px] font-bold uppercase tracking-widest"
           >
             {isLoading ? (
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <div className="w-5 h-5 border-2 border-bg-primary/30 border-t-bg-primary rounded-full animate-spin"></div>
             ) : (
               <>
-                Confirm enrollment <ArrowRight className="w-4 h-4" />
+                Confirm Registration <ArrowRight className="w-4 h-4" />
               </>
             )}
           </button>
@@ -183,7 +183,7 @@ const Signup = () => {
 
         <div className="mt-10 text-center">
           <p className="text-sm font-medium text-text-secondary">
-            Already verified? <Link to="/login" className="text-black font-bold hover:underline underline-offset-4">Sign In</Link>
+            Already have an account? <Link to="/login" className="text-text-primary font-bold hover:underline underline-offset-4">Sign In</Link>
           </p>
         </div>
       </div>
@@ -192,4 +192,3 @@ const Signup = () => {
 };
 
 export default Signup;
-

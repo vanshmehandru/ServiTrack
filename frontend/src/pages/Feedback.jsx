@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Star, MessageSquare, Send, ShieldCheck, Zap, Info, ArrowRight, Wrench } from 'lucide-react';
+import { Star, MessageSquare, Send, ShieldCheck, Info, Wrench } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Feedback = () => {
@@ -36,11 +36,11 @@ const Feedback = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedServiceId) return toast.error('Please select an intervention node');
-    if (rating === 0) return toast.error('Please select an authority rating node');
+    if (!selectedServiceId) return toast.error('Please select a service');
+    if (rating === 0) return toast.error('Please provide a rating');
     
     setIsSubmitting(true);
-    const tId = toast.loading('Synchronizing feedback with central hub...');
+    const tId = toast.loading('Submitting feedback...');
     try {
       const response = await fetch('http://localhost:5000/feedback', {
         method: 'POST',
@@ -54,13 +54,13 @@ const Feedback = () => {
       const data = await response.json();
       
       if (data.success) {
-        toast.success('Experience telemetry logged successfully', { id: tId });
+        toast.success('Thank you! Feedback received.', { id: tId });
         setRating(0);
         setComment('');
         setSelectedServiceId('');
         fetchCompleted();
       } else {
-        toast.error(data.message || 'Sync failed', { id: tId });
+        toast.error(data.message || 'Submission failed', { id: tId });
       }
     } catch (err) {
       toast.error('Connection failed', { id: tId });
@@ -70,30 +70,30 @@ const Feedback = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12 font-sans">
+    <div className="max-w-4xl mx-auto space-y-12 font-sans transition-colors duration-300">
       {/* Header */}
       <div className="relative">
         <div className="space-y-1">
-          <h2 className="text-4xl font-bold tracking-tight text-black italic serif-heading">Experience Telemetry.</h2>
-          <p className="text-lg text-text-secondary font-medium opacity-80">Log your qualitative assessment of the service protocol fulfillment.</p>
+          <h2 className="text-4xl font-bold tracking-tight text-text-primary italic serif-heading">Service Feedback.</h2>
+          <p className="text-lg text-text-secondary font-medium opacity-80">Please share your experience with our service to help us improve.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-8">
-           <div className="bg-white p-10 border border-border-color rounded-[2.5rem] shadow-sm">
-              <h4 className="text-xl font-bold tracking-tight text-black mb-12 flex items-center gap-3 italic serif-heading">
-                 <Star className="w-5 h-5" /> Satisfaction Rating
+           <div className="bg-bg-secondary p-10 border border-border-color rounded-[2.5rem] shadow-sm">
+              <h4 className="text-xl font-bold tracking-tight text-text-primary mb-12 flex items-center gap-3 italic serif-heading">
+                 <Star className="w-5 h-5" /> Rate Service
               </h4>
 
               <form onSubmit={handleSubmit} className="space-y-10">
                 <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase text-text-secondary tracking-widest ml-1">Select Intervention Node</label>
+                    <label className="text-[10px] font-bold uppercase text-text-secondary tracking-widest ml-1">Select Service Request</label>
                     <div className="relative group">
                        <Wrench className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary opacity-30 group-focus-within:opacity-100" />
                        <select 
                          required 
-                         className="premium-input w-full pl-11 py-3.5 text-[14px] font-bold appearance-none bg-bg-secondary"
+                         className="premium-input w-full pl-11 py-3.5 text-[14px] font-bold appearance-none bg-bg-primary"
                          value={selectedServiceId}
                          onChange={e => setSelectedServiceId(e.target.value)}
                        >
@@ -116,7 +116,7 @@ const Feedback = () => {
                        <Star 
                           className={`w-12 h-12 transition-all ${
                             star <= rating 
-                              ? 'fill-black text-black' 
+                              ? 'fill-brand text-brand' 
                               : 'text-text-secondary opacity-20'
                           }`} 
                        />
@@ -124,13 +124,13 @@ const Feedback = () => {
                    ))}
                 </div>
                 
-                <div className="space-y-6">
-                   <label className="text-[10px] font-bold uppercase text-text-secondary tracking-widest ml-1 opacity-60 italic">Operational Narrative (Comment)</label>
+                <div className="space-y-4">
+                   <label className="text-[10px] font-bold uppercase text-text-secondary tracking-widest ml-1 opacity-60">Comments</label>
                    <div className="relative group">
                       <MessageSquare className="absolute left-4 top-6 w-4 h-4 text-text-secondary opacity-30 group-focus-within:opacity-100" />
                       <textarea 
-                        placeholder="Describe the efficiency and precision of the intervention..." 
-                        className="premium-input w-full pl-11 py-5 text-[14px] min-h-[160px] leading-relaxed resize-none font-medium italic bg-bg-secondary"
+                        placeholder="What did you think of the service technician and the repair?" 
+                        className="premium-input w-full pl-11 py-5 text-[14px] min-h-[160px] leading-relaxed resize-none font-medium bg-bg-primary"
                         value={comment}
                         onChange={e => setComment(e.target.value)}
                       />
@@ -143,7 +143,7 @@ const Feedback = () => {
                     disabled={isSubmitting || isLoading}
                     className="primary-button w-full py-5 text-[13px] font-bold uppercase tracking-widest"
                    >
-                      {isSubmitting ? 'Syncing...' : <>Submit Feedback Loop <Send className="w-4 h-4" /></>}
+                      {isSubmitting ? 'Syncing...' : <>Submit Feedback <Send className="w-4 h-4" /></>}
                    </button>
                 </div>
               </form>
@@ -151,21 +151,20 @@ const Feedback = () => {
         </div>
 
         <div className="lg:col-span-1 space-y-8">
-           <div className="p-10 bg-black text-white rounded-[2.5rem] relative overflow-hidden group">
-              <ShieldCheck className="w-8 h-8 text-white mb-6" />
+           <div className="p-10 bg-brand text-bg-primary rounded-[2.5rem] relative overflow-hidden group">
+              <ShieldCheck className="w-8 h-8 text-bg-primary mb-6" />
               <h4 className="text-2xl font-bold tracking-tight mb-4 italic uppercase serif-heading">Quality <br/>Control.</h4>
-              <p className="opacity-60 text-xs font-medium leading-relaxed italic mb-10">Your telemetry helps optimize the autonomous dispatch nodes for all global users.</p>
-              <div className="text-[9px] font-bold uppercase tracking-widest opacity-80 italic">Ref: QC-PROTOCOL-9</div>
+              <p className="opacity-60 text-xs font-medium leading-relaxed italic mb-10">Your feedback helps us maintain the highest standards of service excellence.</p>
            </div>
 
-           <div className="p-10 bg-bg-secondary border border-border-color rounded-[2.5rem] italic">
+           <div className="p-10 bg-bg-secondary border border-border-color rounded-[2.5rem]">
               <div className="flex items-center gap-4 mb-6">
-                 <div className="w-10 h-10 rounded-xl bg-white border border-border-color flex items-center justify-center text-black opacity-30">
-                    <Info className="w-5 h-5" />
+                 <div className="w-10 h-10 rounded-xl bg-bg-primary border border-border-color flex items-center justify-center text-text-primary">
+                    <Info className="w-5 h-5 opacity-30" />
                  </div>
-                 <div className="text-[11px] font-bold text-text-secondary uppercase tracking-widest opacity-60">Verified Origin</div>
+                 <div className="text-[11px] font-bold text-text-secondary uppercase tracking-widest opacity-60">Verification</div>
               </div>
-              <p className="text-[11px] text-text-secondary leading-relaxed font-medium">Feedback is permanently anchored to the protocol node for transparency.</p>
+              <p className="text-[11px] text-text-secondary leading-relaxed font-medium">Feedback is permanently attached to the service record for quality auditing.</p>
            </div>
         </div>
       </div>

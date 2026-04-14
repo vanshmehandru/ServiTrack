@@ -11,17 +11,15 @@ app.post('/signup', async (req, res) => {
     try {
         const { firstName, lastName, age, email, password, phone, address } = req.body;
         
-        // Simple input validation
         if (!firstName || !lastName || !email || !password || !phone || !address) {
             return res.status(400).json({ success: false, message: 'All fields are required' });
         }
 
-        // Insert into Customer table
         await db.query(
             `INSERT INTO Customer (First_Name, Last_Name, Age, Email, Password, Phone, Address) VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [firstName, lastName, age, email, password, phone, address]
         );
-        res.json({ success: true, message: 'Signup successful' });
+        res.json({ success: true, message: 'Account created successfully' });
     } catch (err) {
         console.error(err);
         if (err.code === 'ER_DUP_ENTRY') {
@@ -36,7 +34,6 @@ app.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Step 1: Check in Admin table
         const [adminRows] = await db.query(
             `SELECT * FROM Admin WHERE Email = ? AND Password = ?`,
             [email, password]
@@ -46,11 +43,10 @@ app.post('/login', async (req, res) => {
             return res.json({
                 success: true,
                 role: 'admin',
-                user: adminRows[0] // Contains Admin_ID
+                user: adminRows[0]
             });
         }
 
-        // Step 2: Check in Customer table
         const [customerRows] = await db.query(
             `SELECT * FROM Customer WHERE Email = ? AND Password = ?`,
             [email, password]
@@ -60,13 +56,11 @@ app.post('/login', async (req, res) => {
             return res.json({
                 success: true,
                 role: 'customer',
-                user: customerRows[0] // Contains Customer_ID
+                user: customerRows[0]
             });
         }
 
-        // Step 3: Not found in both
         res.json({ success: false, message: 'Invalid credentials' });
-
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false, message: 'Server error' });
@@ -90,7 +84,7 @@ app.get('/profile', async (req, res) => {
 
 app.put('/profile', async (req, res) => {
     try {
-        const { id, address, phone } = req.body; // 'id' here is Customer_ID from frontend
+        const { id, address, phone } = req.body;
         if (!id) return res.status(400).json({ success: false, message: 'User ID required' });
 
         await db.query(`UPDATE Customer SET Address = ?, Phone = ? WHERE Customer_ID = ?`, [address, phone, id]);
@@ -139,7 +133,6 @@ app.get('/products', async (req, res) => {
             WHERE Product.Customer_ID = ?
         `, [customerId]);
 
-        // Update Warranty Status dynamically based on date
         const currentDate = new Date();
         products.forEach(p => {
             const end = new Date(p.End_Date);
@@ -148,15 +141,7 @@ app.get('/products', async (req, res) => {
 
         res.json({ success: true, products });
     } catch (err) {
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-});
-
-app.get('/all-products', async (req, res) => {
-    try {
-        const [products] = await db.query(`SELECT * FROM Product`);
-        res.json({ success: true, products });
-    } catch (err) {
+        console.error(err);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 });
@@ -166,20 +151,17 @@ app.post('/service-request', async (req, res) => {
     try {
         const { customerId, productId, issueDescription } = req.body;
         
-        // 1. Check if Address is present
         const [customer] = await db.query(`SELECT Address FROM Customer WHERE Customer_ID = ?`, [customerId]);
         if (!customer[0].Address) {
             return res.status(400).json({ success: false, message: 'Please update your address in profile before raising a request.' });
         }
 
-        // 2. Insert into ServiceRequest table
         const result = await db.query(
             `INSERT INTO ServiceRequest (Customer_ID, Product_ID, Issue_Description, Status, Request_Date) VALUES (?, ?, ?, 'Pending', CURDATE())`,
             [customerId, productId, issueDescription]
         );
         const requestId = result[0].insertId;
 
-        // Warranty check
         const [warranty] = await db.query(`SELECT End_Date FROM Warranty WHERE Product_ID = ?`, [productId]);
         let isWarrantyActive = false;
         if (warranty.length > 0) {
@@ -187,16 +169,13 @@ app.post('/service-request', async (req, res) => {
         }
         let initialCost = isWarrantyActive ? 0.00 : null;
 
-        // Automatically assign technician
         const [technicians] = await db.query(`SELECT Technician_ID FROM Technician LIMIT 1`);
         if (technicians.length > 0) {
             const techId = technicians[0].Technician_ID;
-            // 3. Create ServiceRecord entry
             await db.query(
                 `INSERT INTO ServiceRecord (Request_ID, Technician_ID, Service_Status, Service_Date, Cost) VALUES (?, ?, 'Assigned', CURDATE(), ?)`,
                 [requestId, techId, initialCost]
             );
-            // Updating ServiceRequest Status
             await db.query(`UPDATE ServiceRequest SET Status = 'Assigned' WHERE Request_ID = ?`, [requestId]);
         }
 
@@ -211,7 +190,7 @@ app.get('/service-status', async (req, res) => {
     try {
         const { customerId } = req.query;
         let query = `
-            SELECT SR.*, SRec.Service_ID as RecordId, SRec.Service_Status as TaskStatus, SRec.Cost, SRec.Technician_ID, T.Name as TechnicianName, P.Product_Name, W.End_Date, Pay.Payment_Status, F.Rating as Feedback_Rating
+            SELECT SR.*, SRec.Service_ID as RecordId, SRec.Service_Status as TaskStatus, SRec.Cost, SRec.Technician_ID, T.Name as TechnicianName, P.Product_Name, P.Model_Number, W.End_Date, Pay.Payment_Status, F.Rating as Feedback_Rating
             FROM ServiceRequest SR
             LEFT JOIN ServiceRecord SRec ON SR.Request_ID = SRec.Request_ID
             LEFT JOIN Technician T ON SRec.Technician_ID = T.Technician_ID
@@ -254,24 +233,9 @@ app.post('/feedback', async (req, res) => {
             `INSERT INTO Feedback (Service_ID, Rating, Comments) VALUES (?, ?, ?)`,
             [serviceId, rating, comments]
         );
-        res.json({ success: true, message: 'Feedback submitted successfully' });
+        res.json({ success: true, message: 'Feedback submitted' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-});
-
-// Admin endpoint to get all requests
-app.get('/admin/requests', async (req, res) => {
-    try {
-        const [requests] = await db.query(`
-            SELECT SR.*, SRec.Service_ID as RecordId, SRec.Service_Status as TaskStatus, C.First_Name, C.Last_Name, C.Email
-            FROM ServiceRequest SR
-            LEFT JOIN ServiceRecord SRec ON SR.Request_ID = SRec.Request_ID
-            LEFT JOIN Customer C ON SR.Customer_ID = C.Customer_ID
-        `);
-        res.json({ success: true, requests });
-    } catch (err) {
         res.status(500).json({ success: false, message: 'Server error' });
     }
 });
@@ -280,27 +244,40 @@ app.get('/admin/requests', async (req, res) => {
 app.put('/admin/service-update', async (req, res) => {
     try {
         const { serviceId, status, cost, technician } = req.body;
-        
-        // 1. Update ServiceRecord
+        if (!serviceId) return res.status(400).json({ success: false, message: 'Service ID required' });
+
+        const [recordInfo] = await db.query(`
+            SELECT W.End_Date, SR.Product_ID, SR.Request_ID
+            FROM ServiceRecord SRec
+            JOIN ServiceRequest SR ON SRec.Request_ID = SR.Request_ID
+            JOIN Warranty W ON SR.Product_ID = W.Product_ID
+            WHERE SRec.Service_ID = ?
+        `, [serviceId]);
+
+        let finalCost = cost;
+        if (recordInfo.length > 0) {
+            const isUnderWarranty = new Date() <= new Date(recordInfo[0].End_Date);
+            if (isUnderWarranty) {
+                finalCost = 0.00;
+            }
+        }
+
         await db.query(`
             UPDATE ServiceRecord 
             SET Service_Status = ?, Cost = ?, Technician_ID = (SELECT Technician_ID FROM Technician WHERE Name = ? OR Technician_ID = ? LIMIT 1)
             WHERE Service_ID = ?
-        `, [status, cost, technician, technician, serviceId]);
+        `, [status, finalCost, technician, technician, serviceId]);
 
-        // 2. Sync corresponding ServiceRequest status
-        const [record] = await db.query(`SELECT Request_ID FROM ServiceRecord WHERE Service_ID = ?`, [serviceId]);
-        if (record.length > 0) {
-            await db.query(`UPDATE ServiceRequest SET Status = ? WHERE Request_ID = ?`, [status, record[0].Request_ID]);
+        if (recordInfo.length > 0) {
+            await db.query(`UPDATE ServiceRequest SET Status = ? WHERE Request_ID = ?`, [status, recordInfo[0].Request_ID]);
         }
 
-        res.json({ success: true, message: 'Registry synchronized successfully' });
+        res.json({ success: true, message: 'System records updated' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false, message: 'Authority sync failed' });
     }
 });
-
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

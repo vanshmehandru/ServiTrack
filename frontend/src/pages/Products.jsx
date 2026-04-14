@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Plus, Search, ShieldCheck, Filter, MoreVertical, LayoutGrid, List, Activity, Zap } from 'lucide-react';
+import { Box, Plus, Search, ShieldCheck, Filter, MoreVertical, LayoutGrid, List, Activity, Zap, Trash2, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Products = () => {
@@ -7,6 +7,9 @@ const Products = () => {
   const [viewMode, setViewMode] = useState('table');
   const [productList, setProductList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeMenu, setActiveMenu] = useState(null);
+  const [filterStatus, setFilterStatus] = useState('all'); // all, active, expired
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Enrollment Form State
   const [newProduct, setNewProduct] = useState({
@@ -21,6 +24,7 @@ const Products = () => {
   const fetchProducts = async () => {
     if (!customerId) return;
     try {
+      setIsLoading(true);
       const response = await fetch(`http://localhost:5000/products?customerId=${customerId}`);
       const data = await response.json();
       if (data.success) {
@@ -28,7 +32,7 @@ const Products = () => {
       }
     } catch (err) {
       console.error('Fetch error:', err);
-      toast.error('Could not load asset inventory.');
+      toast.error('Could not load products inventory.');
     } finally {
       setIsLoading(false);
     }
@@ -38,11 +42,11 @@ const Products = () => {
     fetchProducts();
   }, [customerId]);
 
-  const handleEnroll = async (e) => {
+  const handleAddProduct = async (e) => {
     e.preventDefault();
     if (!customerId) return;
     
-    const tId = toast.loading('Enrolling asset into global registry...');
+    const tId = toast.loading('Adding product to registry...');
     try {
       const response = await fetch('http://localhost:5000/product', {
         method: 'POST',
@@ -55,72 +59,93 @@ const Products = () => {
       const data = await response.json();
       
       if (data.success) {
-        toast.success('Asset verified and synchronized', { id: tId });
+        toast.success('Product added successfully', { id: tId });
         setIsModalOpen(false);
         setNewProduct({ productName: '', modelNumber: '', purchaseDate: '' });
         fetchProducts(); // Refresh list
       } else {
-        toast.error(data.message || 'Enrollment failed', { id: tId });
+        toast.error(data.message || 'Error adding product', { id: tId });
       }
     } catch (err) {
       toast.error('Connection failed', { id: tId });
     }
   };
 
-  const getStatus = (p) => {
-    if (p.IsUnderWarranty) return 'Active';
-    return 'Expired';
-  };
+  const filteredProducts = productList.filter(p => {
+    const matchesSearch = p.Product_Name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          p.Model_Number.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (filterStatus === 'all') return matchesSearch;
+    const isUnderWarranty = p.IsUnderWarranty;
+    const statusMatch = filterStatus === 'active' ? isUnderWarranty : !isUnderWarranty;
+    return matchesSearch && statusMatch;
+  });
 
   return (
-    <div className="space-y-12 font-sans">
+    <div className="space-y-12 font-sans transition-colors duration-300">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
         <div className="relative">
           <div className="space-y-1">
-            <h2 className="text-4xl font-bold tracking-tight text-text-primary italic serif-heading">Asset Inventory.</h2>
-            <p className="text-lg text-text-secondary font-medium opacity-80">Verified units in your global synchronization network.</p>
+            <h2 className="text-4xl font-bold tracking-tight text-text-primary italic serif-heading">Product Inventory.</h2>
+            <p className="text-lg text-text-secondary font-medium opacity-80">Manage your verified products and warranty coverage.</p>
           </div>
         </div>
-        <button onClick={() => setIsModalOpen(true)} className="primary-button px-8 py-4">
-          <Plus className="w-5 h-5" /> Enroll New Asset
+        <button onClick={() => setIsModalOpen(true)} className="primary-button px-8 py-4 shadow-lg shadow-brand/20">
+          <Plus className="w-5 h-5" /> Add New Product
         </button>
       </div>
 
       {/* Stats Mini Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-         {[
-           { label: 'Total Assets', val: productList.length, icon: Box },
-           { label: 'Coverage Active', val: productList.filter(p => p.IsUnderWarranty).length, icon: ShieldCheck },
-           { label: 'Network Points', val: '2.4k', icon: Zap }
-         ].map((s, i) => (
-           <div key={i} className="bg-bg-secondary p-8 rounded-3xl border border-border-color flex items-center gap-6">
-              <div className="w-12 h-12 rounded-2xl bg-black flex items-center justify-center text-white">
-                 <s.icon className="w-5 h-5" />
-              </div>
-              <div>
-                 <div className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60 mb-1">{s.label}</div>
-                 <div className="text-3xl font-bold text-text-primary tracking-tighter">{s.val}</div>
-              </div>
-           </div>
-         ))}
+          {[
+            { label: 'Total Products', val: productList.length, icon: Box },
+            { label: 'Coverage Active', val: productList.filter(p => p.IsUnderWarranty).length, icon: ShieldCheck }
+          ].map((s, i) => (
+            <div key={i} className="bg-bg-secondary p-8 rounded-3xl border border-border-color flex items-center gap-6 shadow-sm hover:shadow-md transition-all">
+               <div className="w-12 h-12 rounded-2xl bg-brand flex items-center justify-center text-bg-primary shadow-sm">
+                  <s.icon className="w-5 h-5" />
+               </div>
+                <div>
+                   <div className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60 mb-1">{s.label}</div>
+                   <div className="text-3xl font-bold text-text-primary tracking-tighter">{s.val}</div>
+                </div>
+             </div>
+          ))}
       </div>
 
       {/* Inventory Controls */}
-      <div className="flex flex-col md:flex-row gap-6 mt-12 bg-white p-5 rounded-[2rem] border border-border-color shadow-sm">
+      <div className="flex flex-col md:flex-row gap-6 mt-12 bg-bg-secondary p-4 rounded-[2rem] border border-border-color shadow-sm">
          <div className="flex-1 relative group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary opacity-30 group-focus-within:opacity-100" />
-            <input placeholder="Search asset registry by serial or identity..." className="w-full bg-bg-secondary border-none rounded-xl pl-11 pr-4 py-3 text-[13px] font-medium focus:ring-1 focus:ring-black outline-none transition-all" />
+            <input 
+              placeholder="Search products by serial or name..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-bg-primary border border-border-color rounded-xl pl-11 pr-4 py-3 text-[13px] font-medium focus:ring-1 focus:ring-brand outline-none transition-all text-text-primary" 
+            />
          </div>
          <div className="flex gap-4">
-            <button className="secondary-button px-6 py-3">
-               <Filter className="w-4 h-4 opacity-50" /> Filter
-            </button>
-            <div className="bg-bg-secondary p-1 rounded-xl border border-border-color flex gap-1">
-               <button onClick={()=>setViewMode('table')} className={`p-2 rounded-lg transition-all border-none cursor-pointer ${viewMode === 'table' ? 'bg-white shadow-sm text-black' : 'bg-transparent text-text-secondary opacity-40 hover:opacity-100'}`}>
+            <div className="flex bg-bg-primary p-1 rounded-xl border border-border-color">
+               {['all', 'active', 'expired'].map((status) => (
+                 <button
+                   key={status}
+                   onClick={() => setFilterStatus(status)}
+                   className={`px-4 py-2 rounded-lg text-[11px] font-bold uppercase tracking-widest border-none transition-all cursor-pointer ${
+                     filterStatus === status 
+                       ? 'bg-brand text-bg-primary shadow-sm' 
+                       : 'bg-transparent text-text-secondary opacity-60 hover:opacity-100'
+                   }`}
+                 >
+                   {status}
+                 </button>
+               ))}
+            </div>
+            <div className="bg-bg-primary p-1 rounded-xl border border-border-color flex gap-1">
+               <button onClick={()=>setViewMode('table')} className={`p-2 rounded-lg transition-all border-none cursor-pointer ${viewMode === 'table' ? 'bg-brand text-bg-primary shadow-sm' : 'bg-transparent text-text-secondary opacity-40 hover:opacity-100'}`}>
                   <List className="w-4 h-4" />
                </button>
-               <button onClick={()=>setViewMode('grid')} className={`p-2 rounded-lg transition-all border-none cursor-pointer ${viewMode === 'grid' ? 'bg-white shadow-sm text-black' : 'bg-transparent text-text-secondary opacity-40 hover:opacity-100'}`}>
+               <button onClick={()=>setViewMode('grid')} className={`p-2 rounded-lg transition-all border-none cursor-pointer ${viewMode === 'grid' ? 'bg-brand text-bg-primary shadow-sm' : 'bg-transparent text-text-secondary opacity-40 hover:opacity-100'}`}>
                   <LayoutGrid className="w-4 h-4" />
                </button>
             </div>
@@ -128,56 +153,73 @@ const Products = () => {
       </div>
 
       {/* Inventory Table */}
-      <div className="bg-white rounded-[2rem] overflow-hidden border border-border-color shadow-sm">
+      <div className="bg-bg-secondary border border-border-color rounded-[2.5rem] overflow-hidden shadow-sm">
          <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
                <thead>
-                  <tr className="border-b border-border-color bg-bg-secondary/50">
-                     <th className="px-10 py-6 text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Identity</th>
-                     <th className="px-10 py-6 text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Serial Node</th>
-                     <th className="px-10 py-6 text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">SLA Timeline</th>
+                  <tr className="border-b border-border-color bg-bg-primary/30">
+                     <th className="px-10 py-6 text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Product Name</th>
+                     <th className="px-10 py-6 text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Serial Number</th>
+                     <th className="px-10 py-6 text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Warranty Till</th>
                      <th className="px-10 py-6 text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Status</th>
                      <th className="px-10 py-6 text-right text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Actions</th>
                   </tr>
                </thead>
                <tbody className="divide-y divide-border-color">
                   {isLoading ? (
-                    <tr><td colSpan="5" className="px-10 py-20 text-center text-text-secondary animate-pulse font-medium">Synchronizing with registry...</td></tr>
-                  ) : productList.length === 0 ? (
-                    <tr><td colSpan="5" className="px-10 py-20 text-center text-text-secondary font-medium">No assets deployed to this node.</td></tr>
-                  ) : productList.map((p) => (
-                     <tr key={p.Product_ID} className="group hover:bg-bg-secondary transition-all duration-300">
+                    <tr><td colSpan="5" className="px-10 py-24 text-center text-text-secondary animate-pulse font-medium">Synchronizing records...</td></tr>
+                  ) : filteredProducts.length === 0 ? (
+                    <tr><td colSpan="5" className="px-10 py-24 text-center text-text-secondary font-medium italic opacity-60">No products found in the registry.</td></tr>
+                  ) : filteredProducts.map((p) => (
+                     <tr key={p.Product_ID} className="group hover:bg-bg-primary transition-all duration-300">
                         <td className="px-10 py-8">
                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 bg-bg-secondary rounded-2xl flex items-center justify-center text-black border border-border-color group-hover:scale-105 transition-transform">
+                               <div className="w-12 h-12 bg-bg-primary rounded-2xl flex items-center justify-center text-text-primary border border-border-color group-hover:scale-105 transition-transform shadow-sm">
                                  <Box className="w-5 h-5 opacity-60" />
-                              </div>
-                              <div>
-                                 <div className="text-[15px] font-bold text-black tracking-tight">{p.Product_Name}</div>
-                                 <div className="text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-40 mt-1">Certified Unit</div>
-                              </div>
+                               </div>
+                               <div>
+                                  <div className="text-[15px] font-bold text-text-primary tracking-tight">{p.Product_Name}</div>
+                                  <div className="text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-40 mt-1">Verified Unit</div>
+                               </div>
                            </div>
                         </td>
                         <td className="px-10 py-8">
-                           <div className="font-mono text-[13px] font-bold text-black opacity-80">{p.Model_Number}</div>
+                           <div className="font-mono text-[13px] font-bold text-text-primary opacity-80">{p.Model_Number}</div>
                         </td>
                         <td className="px-10 py-8">
                            <div className="flex items-center gap-3">
-                              <div className="text-right">
-                                 <div className="text-[13px] font-bold text-black">{new Date(p.End_Date).toLocaleDateString()}</div>
-                                 <div className="text-[9px] font-black text-text-secondary uppercase tracking-widest opacity-40">Expiration Date</div>
+                              <div>
+                                 <div className="text-[13px] font-bold text-text-primary">{new Date(p.End_Date).toLocaleDateString()}</div>
+                                 <div className="text-[9px] font-black text-text-secondary uppercase tracking-widest opacity-40">Coverage End</div>
                               </div>
                            </div>
                         </td>
                         <td className="px-10 py-8">
                            <div className={`badge ${p.IsUnderWarranty ? 'badge-completed' : 'badge-pending'}`}>
-                              {getStatus(p)}
+                              {p.IsUnderWarranty ? 'Active' : 'Expired'}
                            </div>
                         </td>
-                        <td className="px-10 py-8 text-right">
-                           <button className="p-2.5 rounded-xl bg-bg-secondary text-text-secondary hover:text-black border-none transition-all cursor-pointer">
+                        <td className="px-10 py-8 text-right relative">
+                           <button 
+                             onClick={() => setActiveMenu(activeMenu === p.Product_ID ? null : p.Product_ID)}
+                             className="p-2.5 rounded-xl bg-bg-primary text-text-secondary hover:text-text-primary border border-border-color transition-all cursor-pointer shadow-sm"
+                           >
                               <MoreVertical className="w-4 h-4" />
                            </button>
+                           
+                           {activeMenu === p.Product_ID && (
+                             <>
+                               <div className="fixed inset-0 z-10" onClick={() => setActiveMenu(null)}></div>
+                               <div className="absolute right-10 top-16 w-52 bg-bg-primary border border-border-color rounded-2xl shadow-2xl z-20 py-3 animate-in overflow-hidden">
+                                  <button className="w-full text-left px-5 py-3 text-[13px] font-bold text-text-primary hover:bg-bg-secondary flex items-center gap-3 border-none bg-transparent cursor-pointer transition-colors">
+                                     <ExternalLink className="w-4 h-4 opacity-40" /> View Records
+                                  </button>
+                                  <button className="w-full text-left px-5 py-3 text-[13px] font-bold text-red-500 hover:bg-red-50/10 flex items-center gap-3 border-none bg-transparent cursor-pointer transition-colors">
+                                     <Trash2 className="w-4 h-4 opacity-40" /> Decommission
+                                  </button>
+                               </div>
+                             </>
+                           )}
                         </td>
                      </tr>
                   ))}
@@ -189,20 +231,20 @@ const Products = () => {
       {/* Enrollment Modal */}
       {isModalOpen && (
          <div className="fixed inset-0 z-[100] flex items-center justify-center p-10 animate-in">
-            <div className="absolute inset-0 bg-modal-overlay backdrop-blur-md" onClick={()=>setIsModalOpen(false)}></div>
-            <div className="w-full max-w-lg p-14 bg-white relative shadow-2xl z-10 border border-border-color rounded-[2.5rem]">
-               <div className="bg-black p-5 rounded-[2rem] w-max mb-10 shadow-xl shadow-black/10">
-                  <Box className="w-10 h-10 text-white" />
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={()=>setIsModalOpen(false)}></div>
+            <div className="w-full max-w-lg p-14 bg-bg-primary relative shadow-2xl z-10 border border-border-color rounded-[3rem]">
+               <div className="bg-brand p-5 rounded-[2rem] w-max mb-10 shadow-xl shadow-brand/20">
+                  <Box className="w-10 h-10 text-bg-primary" />
                </div>
-               <h3 className="text-4xl font-bold tracking-tight text-black italic serif-heading mb-3">Asset Enrollment.</h3>
-               <p className="text-md text-text-secondary font-medium mb-12 opacity-80 leading-relaxed">Assign a physical asset to your global synchronization node to enable premium coverage.</p>
+               <h3 className="text-4xl font-bold tracking-tight text-text-primary italic serif-heading mb-3">Register Product.</h3>
+               <p className="text-md text-text-secondary font-medium mb-12 opacity-80 leading-relaxed">Add a product to your registry to enable verified warranty coverage and service requests.</p>
                
-               <form onSubmit={handleEnroll} className="space-y-8">
+               <form onSubmit={handleAddProduct} className="space-y-8">
                   <div className="space-y-2">
-                     <label className="text-[10px] font-bold uppercase text-text-secondary tracking-widest ml-1 opacity-60">Identity Name</label>
+                     <label className="text-[10px] font-bold uppercase text-text-secondary tracking-widest ml-1 opacity-60">Product Name</label>
                      <input 
                       required 
-                      placeholder="E.G. TITAN 900" 
+                      placeholder="E.G. SMART MONITOR 4K" 
                       className="premium-input w-full p-4 text-[14px] font-bold italic uppercase" 
                       value={newProduct.productName}
                       onChange={e => setNewProduct({...newProduct, productName: e.target.value})}
@@ -210,7 +252,7 @@ const Products = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-6">
                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase text-text-secondary tracking-widest ml-1 opacity-60">Serial Protocol</label>
+                        <label className="text-[10px] font-bold uppercase text-text-secondary tracking-widest ml-1 opacity-60">Serial Number</label>
                         <input 
                           required 
                           placeholder="SN-XXXX" 
@@ -220,7 +262,7 @@ const Products = () => {
                         />
                      </div>
                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase text-text-secondary tracking-widest ml-1 opacity-60">Node Deployment</label>
+                        <label className="text-[10px] font-bold uppercase text-text-secondary tracking-widest ml-1 opacity-60">Date of Purchase</label>
                         <input 
                           required 
                           type="date" 
@@ -233,7 +275,7 @@ const Products = () => {
                   
                   <div className="pt-8 flex gap-4">
                      <button type="button" onClick={()=>setIsModalOpen(false)} className="secondary-button flex-1 py-4 text-[11px] font-bold uppercase tracking-widest">Abort</button>
-                     <button type="submit" className="primary-button flex-[2] py-4 text-[11px] font-bold uppercase tracking-widest">Initialize Sync</button>
+                     <button type="submit" className="primary-button flex-[2] py-4 text-[11px] font-bold uppercase tracking-widest shadow-lg shadow-brand/20">Confirm Registration</button>
                   </div>
                </form>
             </div>

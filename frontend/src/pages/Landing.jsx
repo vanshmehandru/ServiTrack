@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import dashboardPreview from '../assets/dashboard-preview.png';
-import { ShieldCheck, Layout } from 'lucide-react';
+import actualDashboard from '../assets/actual-dashboard.png';
+import { ShieldCheck } from 'lucide-react';
 
 const Landing = () => {
   return (
@@ -35,7 +35,7 @@ const Landing = () => {
         <div className="flex justify-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-bg-secondary border border-border-color text-[11px] font-semibold text-text-secondary animate-in">
              <span className="w-1.5 h-1.5 rounded-full bg-black"></span>
-             We're live on Product Hunt! <span className="text-black underline cursor-pointer">Check it out</span>
+             Our website is live <Link to="/login" className="text-black underline cursor-pointer">check it out</Link>
           </div>
         </div>
 
@@ -60,40 +60,22 @@ const Landing = () => {
         {/* Dashboard Preview Section */}
         <section className="max-w-6xl mx-auto px-6 mb-40 animate-in">
           <div className="relative p-4 md:p-8 bg-bg-secondary rounded-[2.5rem] border border-border-color shadow-2xl overflow-hidden group">
-            {/* The "Blue Interior" with Improved Visualization */}
-            <div className="aspect-[16/10] bg-black rounded-[1.5rem] relative overflow-hidden flex flex-col group/preview">
-              {/* Background Image with Gradient Overlay */}
+            {/* Actual Dashboard Preview */}
+            <div className="aspect-[16/10] bg-white rounded-[1.5rem] relative overflow-hidden flex flex-col group/preview border border-border-color shadow-inner">
+              {/* Background Image */}
               <img 
-                src={dashboardPreview} 
-                alt="WarrantySys Dashboard Preview" 
-                className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover/preview:scale-105 transition-transform duration-700" 
+                src={actualDashboard} 
+                alt="WarrantySys System Monitor" 
+                className="absolute inset-0 w-full h-full object-cover group-hover/preview:scale-102 transition-transform duration-1000" 
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0052FF]/40 via-transparent to-black/20"></div>
               
-              {/* Floating Content */}
-              <div className="relative h-full flex flex-col p-12 justify-between">
-                <div className="flex justify-between items-start text-white/90">
-                  <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-sm font-semibold border border-white/20">
-                    <Layout className="w-4 h-4" /> Comprehensive Dashboard
-                  </div>
-                  <div className="flex -space-x-3">
-                    {[1,2,3,4].map(i => (
-                      <div key={i} className="w-10 h-10 rounded-full border-2 border-white/20 bg-cover bg-center shadow-lg" style={{backgroundImage: `url(https://i.pravatar.cc/100?img=${i+44})`}}></div>
-                    ))}
-                  </div>
-                </div>
+              {/* Subtle Overlay to integrate with the landing page design */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-transparent to-transparent pointer-events-none"></div>
 
-                <div className="max-w-md space-y-4">
-                  <div className="inline-flex items-center gap-2 bg-[#0052FF] px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase text-white shadow-xl shadow-blue-500/30">
-                    Trusted by 500+ Hardware Teams
-                  </div>
-                  <h3 className="text-4xl font-bold text-white tracking-tight leading-tight">
-                    Manage service <span className="italic serif-heading">at the speed of light.</span>
-                  </h3>
-                  <p className="text-white/80 text-base font-medium leading-relaxed">
-                    Automated claim processing, encrypted serial verification, and real-time technician dispatching — all in one unified interface.
-                  </p>
-                </div>
+              {/* Floating Badge */}
+              <div className="absolute top-6 right-6 flex items-center gap-2 bg-black/5 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-bold text-black border border-black/10">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                LIVE SYSTEM MONITOR
               </div>
             </div>
           </div>

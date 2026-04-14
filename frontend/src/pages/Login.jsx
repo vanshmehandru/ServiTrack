@@ -26,7 +26,11 @@ const Login = () => {
         localStorage.setItem('userRole', data.role);
         localStorage.setItem('userData', JSON.stringify(data.user));
         toast.success('Authentication successful', { id: tId });
-        navigate('/dashboard');
+        if (data.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
         toast.error(data.message || 'Invalid credentials', { id: tId });
       }
