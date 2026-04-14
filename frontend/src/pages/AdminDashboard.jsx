@@ -7,7 +7,7 @@ import {
   LogOut, Box, Wrench, ShieldCheck, Activity, Users,
   Search, Moon, Sun, Plus, ChevronRight, BarChart3,
   Layers, Database, Terminal, ArrowRight, Zap, Target,
-  User, MapPin
+  User, MapPin, Star, MessageSquare, CheckCircle2
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -21,6 +21,7 @@ const AdminDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [technicians, setTechnicians] = useState([]);
   const [selectedStatuses, setSelectedStatuses] = useState({}); // { requestId: status }
+  const [dashboardData, setDashboardData] = useState({ stats: { totalCompleted: 0 }, feedbacks: [] });
 
   const navigate = useNavigate();
 
@@ -67,6 +68,12 @@ const AdminDashboard = () => {
         if (res.data.success) setTechnicians(res.data.technicians || []);
       } catch (e) { console.error("Technician fetch failed", e); }
 
+      // 5. Fetch Dashboard Stats & Feedbacks
+      try {
+        const res = await axios.get('http://localhost:5000/admin/dashboard-stats');
+        if (res.data.success) setDashboardData(res.data);
+      } catch (e) { console.error("Stats fetch failed", e); }
+
     } catch (err) {
       toast.error("Authority sync failed. Showing offline registry.");
     } finally {
@@ -109,11 +116,12 @@ const AdminDashboard = () => {
   const filteredRequests = (requests || []).filter(req => {
     const q = searchQuery.toLowerCase();
     const fullName = `${req?.First_Name || ''} ${req?.Last_Name || ''}`.toLowerCase();
-    return (
+    const matchesSearch = (
       req?.Product_Name?.toLowerCase().includes(q) ||
       fullName.includes(q) ||
       req?.Request_ID?.toString().includes(q)
     );
+    return matchesSearch && req.Status !== 'Completed';
   });
 
   const filteredProducts = (allProducts || []).filter(prod => {
@@ -266,43 +274,79 @@ const AdminDashboard = () => {
                     ))}
                   </div>
 
-                  {/* Trends & Logs */}
+                  {/* Trends & Feedbacks */}
                   <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-                     <div className="lg:col-span-3 bg-bg-secondary p-12 border border-border-color rounded-[3rem] shadow-sm">
-                        <div className="flex justify-between items-center mb-12">
-                           <div>
-                              <h4 className="text-2xl font-bold text-text-primary tracking-tight">System Load</h4>
-                              <p className="text-[11px] font-bold text-text-secondary uppercase tracking-widest opacity-60">Resource usage vs request traffic</p>
+                     {/* Services Completed Detail */}
+                     <div className="lg:col-span-3 bg-bg-secondary p-12 border border-border-color rounded-[3rem] shadow-sm relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-8 opacity-5">
+                           <CheckCircle2 className="w-64 h-64 text-brand" />
+                        </div>
+                        <div className="relative z-10 flex flex-col h-full">
+                           <div className="flex justify-between items-center mb-12">
+                              <div>
+                                 <h4 className="text-2xl font-bold text-text-primary tracking-tight">Services Completed</h4>
+                                 <p className="text-[11px] font-bold text-text-secondary uppercase tracking-widest opacity-60">Fulfillment Performance Summary</p>
+                              </div>
+                              <CheckCircle2 className="w-6 h-6 text-brand"/>
                            </div>
-                           <BarChart3 className="w-6 h-6 text-brand opacity-20"/>
-                        </div>
-                        <div className="flex items-end gap-3 h-56 mb-10">
-                           {[40, 65, 45, 95, 65, 85, 50, 75, 45, 85, 100, 75].map((h, i) => (
-                             <div key={i} className="flex-1 bg-bg-primary rounded-xl relative group transition-all hover:bg-brand/5 cursor-crosshair border border-border-color">
-                                <div className="absolute bottom-0 left-0 right-0 bg-brand rounded-xl opacity-20 group-hover:opacity-100 transition-all duration-700" style={{height: `${h}%`}}></div>
-                             </div>
-                           ))}
-                        </div>
-                        <div className="flex justify-between text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-60 border-t border-border-color pt-8 mt-2">
-                           <span>Last 12H System Metrics</span>
-                           <span>Status: Operational</span>
+                           
+                           <div className="flex-1 flex flex-col justify-center py-10">
+                              <div className="text-[100px] font-black text-brand tracking-tighter leading-none mb-4 group-hover:scale-110 transition-transform duration-500 origin-left">
+                                 {dashboardData.stats.totalCompleted}
+                              </div>
+                              <p className="text-xl font-bold text-text-secondary opacity-60 max-w-sm truncate">Successfully resolved cases and maintenance shutdowns completed.</p>
+                           </div>
+
+                           <div className="flex justify-between text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-60 border-t border-border-color pt-8 mt-2">
+                              <span>Real-time Operational Delta</span>
+                              <span>Performance: STABLE</span>
+                           </div>
                         </div>
                      </div>
                      
-                     <div className="lg:col-span-2 bg-brand p-12 text-bg-primary rounded-[3rem] relative overflow-hidden group shadow-xl">
-                        <div className="relative z-10 flex flex-col h-full">
-                           <div className="flex items-center gap-3 mb-10">
-                              <Terminal className="w-6 h-6 text-bg-primary"/>
-                              <h4 className="text-xl font-bold uppercase tracking-tight">System Logs</h4>
-                           </div>
-                           <div className="space-y-6 font-mono text-[12px] opacity-70 mb-14 leading-relaxed flex-1 overflow-y-auto custom-scrollbar pr-2">
-                              <div className="flex gap-3"><span className="font-bold opacity-50">[08:42]</span> <span className="font-bold">SYNC:</span> Database cluster is SECURE.</div>
-                              <div className="flex gap-3"><span className="font-bold opacity-50">[08:45]</span> <span className="font-bold">INFO:</span> Consistency verified.</div>
-                              <div className="flex gap-3"><span className="font-bold opacity-50">[08:50]</span> <span className="font-bold">NODE:</span> New service request initialized.</div>
-                              <div className="flex gap-3"><span className="font-bold opacity-50">[09:05]</span> <span className="font-bold">INFO:</span> Request load within thresholds.</div>
-                           </div>
-                           <button className="bg-bg-primary/10 hover:bg-bg-primary/20 text-bg-primary py-4 rounded-xl font-bold text-[10px] uppercase tracking-widest border border-bg-primary/20 transition-all w-full flex items-center justify-center gap-3 shadow-sm">
-                              ADVANCED AUDIT <ArrowRight className="w-4 h-4 opacity-50" />
+                     {/* Recent Customer Feedback */}
+                     <div className="lg:col-span-2 bg-bg-secondary p-12 border border-border-color rounded-[3rem] shadow-sm flex flex-col">
+                        <div className="flex items-center gap-3 mb-10 pb-6 border-b border-border-color/50">
+                           <MessageSquare className="w-6 h-6 text-brand"/>
+                           <h4 className="text-xl font-bold text-text-primary uppercase tracking-tight">Recent Feedback</h4>
+                        </div>
+                        
+                        <div className="flex-1 space-y-8 overflow-y-auto custom-scrollbar pr-2 min-h-[400px]">
+                           {dashboardData.feedbacks.length > 0 ? (
+                             dashboardData.feedbacks.map((fb, i) => (
+                               <div key={i} className="space-y-4 animate-in">
+                                  <div className="flex justify-between items-start">
+                                     <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center">
+                                           <User className="w-4 h-4 text-brand" />
+                                        </div>
+                                        <div>
+                                           <p className="text-[13px] font-bold text-text-primary leading-none mb-1">{fb.First_Name} {fb.Last_Name}</p>
+                                           <p className="text-[10px] text-text-secondary uppercase tracking-widest opacity-40">{fb.Product_Name}</p>
+                                        </div>
+                                     </div>
+                                     <div className="flex gap-0.5">
+                                        {[...Array(5)].map((_, idx) => (
+                                           <Star key={idx} className={`w-3 h-3 ${idx < fb.Rating ? 'fill-brand text-brand' : 'text-text-secondary opacity-20'}`} />
+                                        ))}
+                                     </div>
+                                  </div>
+                                  <p className="text-[13px] text-text-primary/80 italic font-medium leading-relaxed pl-11">
+                                     "{fb.Comments}"
+                                  </p>
+                               </div>
+                             ))
+                           ) : (
+                             <div className="flex flex-col items-center justify-center h-full opacity-20">
+                                <MessageSquare className="w-12 h-12 mb-4" />
+                                <p className="text-[10px] font-bold uppercase tracking-[0.2em]">No feedback entries found</p>
+                             </div>
+                           )}
+                        </div>
+                        
+                        <div className="pt-8 mt-4 border-t border-border-color/50 text-center">
+                           <button className="text-[10px] font-black uppercase tracking-widest text-text-secondary hover:text-brand transition-colors">
+                              View Full Sentiment Analysis
                            </button>
                         </div>
                      </div>

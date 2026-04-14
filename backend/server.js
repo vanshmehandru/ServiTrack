@@ -218,13 +218,24 @@ app.get('/service-status', async (req, res) => {
 app.post('/payment', async (req, res) => {
     try {
         const { serviceId, amount, paymentMode } = req.body;
+        // Map common frontend labels to valid DB Enums
+        let mode = 'Online';
+        if (paymentMode) {
+            const normalized = paymentMode.toLowerCase();
+            if (normalized.includes('card')) mode = 'Card';
+            else if (normalized.includes('cash')) mode = 'Cash';
+            else if (normalized.includes('upi')) mode = 'UPI';
+            else mode = 'Online';
+        }
+        
         await db.query(
-            `INSERT INTO Payment (Service_ID, Amount, Payment_Mode, Payment_Status) VALUES (?, ?, ?, 'Completed')`,
-            [serviceId, amount, paymentMode || 'Digital']
+            `INSERT INTO Payment (Service_ID, Amount, Payment_Mode, Payment_Status) VALUES (?, ?, ?, 'Paid')`,
+            [serviceId, amount, mode]
         );
         res.json({ success: true, message: 'Payment successful' });
     } catch (err) {
-        res.status(500).json({ success: false, message: 'Server error' });
+        console.error('Payment Error:', err);
+        res.status(500).json({ success: false, message: 'Server error during payment settlement.' });
     }
 });
 
@@ -400,6 +411,30 @@ app.get('/admin/all-customers', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+app.get('/admin/dashboard-stats', async (req, res) => {
+    try {
+        const [[{ totalCompleted }]] = await db.query(`SELECT COUNT(*) as totalCompleted FROM ServiceRequest WHERE Status = 'Completed'`);
+        
+        const [recentFeedback] = await db.query(`
+            SELECT F.*, C.First_Name, C.Last_Name, P.Product_Name 
+            FROM Feedback F 
+            JOIN ServiceRecord SRec ON F.Service_ID = SRec.Service_ID 
+            JOIN ServiceRequest SR ON SRec.Request_ID = SR.Request_ID 
+            JOIN Customer C ON SR.Customer_ID = C.Customer_ID 
+            JOIN Product P ON SR.Product_ID = P.Product_ID 
+            ORDER BY F.Created_At DESC 
+            LIMIT 5
+        `);
+
+        res.json({ 
+            success: true, 
+            stats: { totalCompleted }, 
+            feedbacks: recentFeedback 
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Failed to fetch analytics.' });
+    }
 });
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

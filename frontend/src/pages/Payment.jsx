@@ -40,7 +40,7 @@ const Payment = () => {
         body: JSON.stringify({
           serviceId,
           amount,
-          paymentMode: 'Digital Card'
+          paymentMode: 'Online'
         })
       });
       const data = await response.json();
