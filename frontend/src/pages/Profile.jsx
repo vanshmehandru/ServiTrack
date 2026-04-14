@@ -191,7 +191,7 @@ const Profile = () => {
                 onClick={handleLogout}
                 className="secondary-button w-full py-4 text-red-500 border-red-100 hover:bg-red-50/50 hover:border-red-500 hover:text-red-600 transition-all font-bold uppercase tracking-widest text-[11px]"
               >
-                 Sign Out from WarrantySys
+                 Sign Out from ServiTrack
               </button>
            </div>
         </div>

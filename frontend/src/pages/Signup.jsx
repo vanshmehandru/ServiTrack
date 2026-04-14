@@ -58,7 +58,7 @@ const Signup = () => {
              <UserPlus className="w-8 h-8 text-bg-primary" />
            </div>
            <h2 className="text-3xl font-bold text-text-primary mb-2 tracking-tight italic serif-heading">Create Account.</h2>
-           <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Join WarrantySys</p>
+           <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Join ServiTrack</p>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-6">

@@ -14,7 +14,7 @@ const Landing = () => {
               <div className="bg-black p-1.5 rounded-lg">
                 <ShieldCheck className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold tracking-tight">WarrantySys</span>
+              <span className="text-xl font-bold tracking-tight">ServiTrack</span>
             </Link>
             
 
@@ -46,7 +46,7 @@ const Landing = () => {
           </h1>
           
           <p className="text-lg text-text-secondary max-w-2xl mx-auto mb-10 font-medium animate-in">
-            WarrantySys is designed for teams that need to manage high-quality, verified service claims at scale. From device enrollment to global dispatch.
+            ServiTrack is designed for teams that need to manage high-quality, verified service claims at scale. From device enrollment to global dispatch.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-in">
@@ -65,7 +65,7 @@ const Landing = () => {
               {/* Background Image */}
               <img 
                 src={actualDashboard} 
-                alt="WarrantySys System Monitor" 
+                alt="ServiTrack System Monitor" 
                 className="absolute inset-0 w-full h-full object-cover group-hover/preview:scale-102 transition-transform duration-1000" 
               />
               
@@ -106,9 +106,9 @@ const Landing = () => {
                 <div className="bg-black p-1 rounded-md">
                    <ShieldCheck className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-lg font-bold tracking-tight">WarrantySys</span>
+                <span className="text-lg font-bold tracking-tight">ServiTrack</span>
               </div>
-              <p className="text-sm text-text-secondary font-medium">© 2024 WarrantySys Technologies Inc.</p>
+              <p className="text-sm text-text-secondary font-medium">© 2024 ServiTrack Technologies Inc.</p>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-24">

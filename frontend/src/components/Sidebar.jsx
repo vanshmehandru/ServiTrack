@@ -32,7 +32,7 @@ const Sidebar = () => {
           <ShieldCheck className="w-5 h-5 text-bg-primary" />
         </div>
         <div>
-          <span className="text-xl font-bold tracking-tight text-text-primary serif-heading italic">WarrantySys</span>
+          <span className="text-xl font-bold tracking-tight text-text-primary serif-heading italic">ServiTrack</span>
         </div>
       </div>
 
