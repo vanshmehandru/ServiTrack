@@ -85,8 +85,8 @@ const Payment = () => {
                  ) : bills.map((bill) => (
                     <div key={bill.RecordId} className="p-8 bg-bg-primary rounded-[2rem] border border-border-color flex flex-col md:flex-row justify-between items-center gap-6 group transition-all hover:shadow-md">
                        <div className="flex gap-6 items-center">
-                          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border border-border-color ${bill.Payment_Status === 'Completed' ? 'bg-brand text-bg-primary' : 'bg-bg-secondary text-text-secondary'}`}>
-                             {bill.Payment_Status === 'Completed' ? <CheckCircle2 className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
+                          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border border-border-color ${bill.Payment_Status === 'Paid' ? 'bg-brand text-bg-primary' : 'bg-bg-secondary text-text-secondary'}`}>
+                             {bill.Payment_Status === 'Paid' ? <CheckCircle2 className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
                           </div>
                           <div>
                              <div className="text-[15px] font-bold text-text-primary">{bill.Product_Name} Service</div>
@@ -95,7 +95,7 @@ const Payment = () => {
                        </div>
                        <div className="text-center md:text-right flex flex-col items-center md:items-end gap-3">
                           <div className="text-2xl font-black text-text-primary tracking-tighter">${bill.Cost}</div>
-                          {bill.Payment_Status !== 'Completed' ? (
+                          {bill.Payment_Status !== 'Paid' ? (
                              <button onClick={() => handlePay(bill.RecordId, bill.Cost)} className="primary-button text-[10px] uppercase font-bold tracking-widest px-8 py-3">Pay Now</button>
                           ) : (
                              <span className="badge badge-completed text-[10px] tracking-[.2em] font-black">Settled</span>
