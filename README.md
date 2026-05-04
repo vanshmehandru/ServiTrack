@@ -28,7 +28,7 @@ The system is split into a robust **React + Vite** frontend and a **Node.js/Expr
    DB_HOST=localhost
    DB_USER=your_username
    DB_PASSWORD=your_password
-   DB_NAME=warranty_db
+   DB_NAME=database_name
    PORT=5000
    ```
 3. Initialize the database schema and seed data:
