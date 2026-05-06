@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Box, Plus, Search, ShieldCheck, Filter, MoreVertical, LayoutGrid, List, Trash2, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
+import API_URL from '../config';
 
 const Products = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,7 +31,7 @@ const Products = () => {
     if (!customerId) return;
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:5000/products?customerId=${customerId}`);
+      const response = await fetch(`${API_URL}/products?customerId=${customerId}`);
       const data = await response.json();
       if (data.success) {
         setProductList(data.products);
@@ -73,7 +74,7 @@ const Products = () => {
     
     const tId = toast.loading('Adding product to registry...');
     try {
-      const response = await fetch('http://localhost:5000/product', {
+      const response = await fetch(`${API_URL}/product`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

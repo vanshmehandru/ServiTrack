@@ -1,3 +1,8 @@
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import API_URL from '../config';
 import { useTheme } from '../context/ThemeContext';
 import { 
   LogOut, Box, Wrench, Moon, Sun, 
@@ -5,7 +10,8 @@ import {
   ShieldCheck, History, CreditCard,
   Search, User, MapPin, 
   Zap, ArrowRight, CheckCircle2, AlertCircle,
-  Activity, Plus
+  Activity, Plus,
+  Settings
 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -49,10 +55,10 @@ const Dashboard = () => {
   const fetchData = async (customerId) => {
     try {
       setIsLoading(true);
-      const prodRes = await axios.get(`http://localhost:5000/products?customerId=${customerId}`);
+      const prodRes = await axios.get(`${API_URL}/products?customerId=${customerId}`);
       if (prodRes.data.success) setProducts(prodRes.data.products);
 
-      const servRes = await axios.get(`http://localhost:5000/service-status?customerId=${customerId}`);
+      const servRes = await axios.get(`${API_URL}/service-status?customerId=${customerId}`);
       if (servRes.data.success) setServices(servRes.data.requests);
     } catch (err) {
       toast.error("Failed to load systems data.");
@@ -71,7 +77,7 @@ const Dashboard = () => {
     e.preventDefault();
     const tId = toast.loading('Syncing profile updates...');
     try {
-      await axios.put('http://localhost:5000/profile', { id: user.Customer_ID, address: addressForm, phone: phoneForm });
+      await axios.put(`${API_URL}/profile`, { id: user.Customer_ID, address: addressForm, phone: phoneForm });
       toast.success('Core profile updated!', { id: tId });
       const updatedUser = { ...user, Address: addressForm, Phone: phoneForm };
       setUser(updatedUser);
@@ -87,7 +93,7 @@ const Dashboard = () => {
     e.preventDefault();
     const tId = toast.loading('Enrolling asset into registry...');
     try {
-      await axios.post('http://localhost:5000/product', {
+      await axios.post(`${API_URL}/product`, {
         customerId: user.Customer_ID,
         productName: productForm.name,
         modelNumber: productForm.model,
@@ -106,7 +112,7 @@ const Dashboard = () => {
     e.preventDefault();
     const tId = toast.loading('Transmitting incident report...');
     try {
-      await axios.post('http://localhost:5000/service-request', {
+      await axios.post(`${API_URL}/service-request`, {
         customerId: user.Customer_ID,
         productId: serviceForm.productId,
         issueDescription: serviceForm.issue

@@ -6,6 +6,7 @@ import {
   Zap, Info 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import API_URL from '../config';
 
 const ServiceRequest = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const ServiceRequest = () => {
     const fetchProducts = async () => {
       if (!customerId) return;
       try {
-        const response = await fetch(`http://localhost:5000/products?customerId=${customerId}`);
+        const response = await fetch(`${API_URL}/products?customerId=${customerId}`);
         const data = await response.json();
         if (data.success) {
           setProductList(data.products);
@@ -42,7 +43,7 @@ const ServiceRequest = () => {
 
     const tId = toast.loading('Initializing service request...');
     try {
-      const response = await fetch('http://localhost:5000/service-request', {
+      const response = await fetch(`${API_URL}/service-request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

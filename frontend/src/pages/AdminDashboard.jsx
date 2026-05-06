@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import API_URL from '../config';
 import { useTheme } from '../context/ThemeContext';
 import { 
   LogOut, Box, Wrench, ShieldCheck, Activity, Users,
@@ -40,7 +41,7 @@ const AdminDashboard = () => {
 
       // 1. Fetch Service Requests 
       try {
-        const res = await axios.get('http://localhost:5000/service-status');
+        const res = await axios.get(`${API_URL}/service-status`);
         if (res.data.success) {
            const reqs = res.data.requests || [];
            setRequests(reqs);
@@ -52,25 +53,25 @@ const AdminDashboard = () => {
 
       // 2. Fetch All Products
       try {
-        const res = await axios.get('http://localhost:5000/admin/all-products');
+        const res = await axios.get(`${API_URL}/admin/all-products`);
         if (res.data.success) setAllProducts(res.data.products || []);
       } catch (e) { console.error("Inventory fetch failed", e); }
 
       // 3. Fetch All Customers
       try {
-        const res = await axios.get('http://localhost:5000/admin/all-customers');
+        const res = await axios.get(`${API_URL}/admin/all-customers`);
         if (res.data.success) setAllCustomers(res.data.customers || []);
       } catch (e) { console.error("Customer fetch failed", e); }
 
       // 4. Fetch Technicians
       try {
-        const res = await axios.get('http://localhost:5000/admin/technicians');
+        const res = await axios.get(`${API_URL}/admin/technicians`);
         if (res.data.success) setTechnicians(res.data.technicians || []);
       } catch (e) { console.error("Technician fetch failed", e); }
 
       // 5. Fetch Dashboard Stats & Feedbacks
       try {
-        const res = await axios.get('http://localhost:5000/admin/dashboard-stats');
+        const res = await axios.get(`${API_URL}/admin/dashboard-stats`);
         if (res.data.success) setDashboardData(res.data);
       } catch (e) { console.error("Stats fetch failed", e); }
 
@@ -90,7 +91,7 @@ const AdminDashboard = () => {
   const updateRequestStatus = async (serviceId, requestId, status, cost, technician) => {
     const tId = toast.loading('Updating system records...');
     try {
-      const response = await axios.put('http://localhost:5000/admin/service-update', {
+      const response = await axios.put(`${API_URL}/admin/service-update`, {
         serviceId, requestId, status, cost, technician
       });
       if (response.data.success) {

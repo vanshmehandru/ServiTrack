@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { CreditCard, ShieldCheck, Zap, Info, DollarSign, Clock, CheckCircle2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import API_URL from '../config';
 
 const Payment = () => {
    const [bills, setBills] = useState([]);
@@ -12,7 +13,7 @@ const Payment = () => {
    const fetchBills = async () => {
       if (!customerId) return;
       try {
-         const response = await fetch(`http://localhost:5000/service-status?customerId=${customerId}`);
+         const response = await fetch(`${API_URL}/service-status?customerId=${customerId}`);
          const data = await response.json();
          if (data.success) {
             // Filter for services that have a cost (not 0) and are not fully settled yet (in a real app we'd check Payment table)
@@ -34,7 +35,7 @@ const Payment = () => {
    const handlePay = async (serviceId, amount) => {
       const tId = toast.loading('Processing payment...');
       try {
-         const response = await fetch('http://localhost:5000/payment', {
+         const response = await fetch(`${API_URL}/payment`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

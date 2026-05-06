@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserPlus, User, Mail, Lock, ArrowRight, ArrowLeft, Phone, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
+import API_URL from '../config';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ const Signup = () => {
     const tId = toast.loading('Creating account...');
     
     try {
-      const response = await fetch('http://localhost:5000/signup', {
+      const response = await fetch(`${API_URL}/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
