@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, Calendar, Zap, Info, CheckCircle2, AlertCircle } from 'lucide-react';
+import API_URL from '../config';
 
 const Warranty = () => {
   const navigate = useNavigate();

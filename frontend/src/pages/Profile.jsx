@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { User, Mail, MapPin, Phone, ShieldCheck, Zap, LogOut } from 'lucide-react';
 import toast from 'react-hot-toast';
+import API_URL from '../config';
 
 const Profile = () => {
   const [userData, setUserData] = useState(JSON.parse(localStorage.getItem('userData') || '{}'));
