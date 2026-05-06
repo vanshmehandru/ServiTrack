@@ -12,7 +12,7 @@ async function createDatabaseAndTables() {
             port: process.env.MYSQLPORT || 3306,
         });
 
-        const dbName = process.env.MYSQLDATABASE || process.env.DB_NAME || 'warranty_db';
+        const dbName = process.env.MYSQLDATABASE || process.env.DB_NAME || 'warrantyservicedb';
         
         // DROP DATABASE is necessary for a clean migration given the significant structural changes
         await connection.query(`DROP DATABASE IF EXISTS \`${dbName}\``);
