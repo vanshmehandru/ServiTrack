@@ -1,7 +1,7 @@
+import API_URL from '../config';
 import { useState, useEffect } from 'react';
 import { User, Mail, MapPin, Phone, ShieldCheck, Zap, LogOut } from 'lucide-react';
 import toast from 'react-hot-toast';
-import API_URL from '../config';
 
 const Profile = () => {
   const [userData, setUserData] = useState(JSON.parse(localStorage.getItem('userData') || '{}'));
@@ -20,7 +20,7 @@ const Profile = () => {
     const tId = toast.loading('Synchronizing profile...');
     
     try {
-      const response = await fetch(`${API_URL}/profile`, {
+      const response = await fetch(`\${API_URL}/profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -58,25 +58,25 @@ const Profile = () => {
       {/* Profile Header */}
       <div className="relative">
         <div className="space-y-1">
-          <h2 className="text-5xl font-bold tracking-tight text-text-primary serif-heading">My Profile.</h2>
-          <p className="text-lg text-text-secondary font-medium opacity-80 italic">Manage your verified account and contact details.</p>
+          <h2 className="text-4xl font-bold tracking-tight text-text-primary italic serif-heading">My Profile.</h2>
+          <p className="text-lg text-text-secondary font-medium opacity-80">Manage your verified account and contact details.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Left Col: Avatar & Badge */}
         <div className="lg:col-span-1 space-y-8">
-            <div className="bg-bg-primary p-12 flex flex-col items-center border border-border-color rounded-[3.5rem] shadow-sm">
-               <div className="w-32 h-32 rounded-[3.5rem] bg-bg-secondary p-1 mb-8 shadow-xl relative group border border-border-color">
-                  <div className="w-full h-full rounded-[3.4rem] overflow-hidden bg-bg-primary">
-                     <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${formData.firstName}`} alt="Avatar" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="absolute bottom-1 right-1 w-10 h-10 bg-black text-white rounded-2xl flex items-center justify-center shadow-lg border-4 border-bg-primary">
-                     <Zap className="w-4 h-4 fill-white" />
-                  </div>
-               </div>
-               <h3 className="text-3xl font-bold text-text-primary tracking-tight italic serif-heading">{formData.firstName} {formData.lastName}</h3>
-               <p className="text-[11px] font-bold text-text-secondary uppercase tracking-[.4em] mt-2 opacity-40 italic">Verified Member</p>
+           <div className="bg-bg-secondary p-10 flex flex-col items-center border border-border-color rounded-[2.5rem] shadow-sm">
+              <div className="w-32 h-32 rounded-[2rem] bg-brand p-1 mb-6 shadow-xl relative group">
+                 <div className="w-full h-full rounded-[1.8rem] overflow-hidden bg-bg-primary">
+                    <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${formData.firstName}`} alt="Avatar" className="w-full h-full object-cover" />
+                 </div>
+                 <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-brand text-bg-primary rounded-xl flex items-center justify-center shadow-lg border-2 border-bg-secondary">
+                    <Zap className="w-4 h-4 fill-bg-primary" />
+                 </div>
+              </div>
+              <h3 className="text-2xl font-bold text-text-primary tracking-tight italic serif-heading">{formData.firstName} {formData.lastName}</h3>
+              <p className="text-[11px] font-bold text-text-secondary uppercase tracking-[.2em] mt-1 opacity-60">Verified Member</p>
               
               <div className="w-full h-px bg-border-color my-8"></div>
               
@@ -91,28 +91,27 @@ const Profile = () => {
               </div>
            </div>
 
-            <div className="bg-bg-primary p-12 text-text-primary rounded-[3.5rem] border border-border-color shadow-sm relative overflow-hidden group">
-               <div className="absolute top-0 right-0 w-40 h-40 bg-brand/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-               <h5 className="text-[10px] uppercase font-bold tracking-[.4em] text-text-secondary opacity-30 mb-8 italic">Secure Metadata</h5>
-               <div className="space-y-4">
-                  <div className="flex justify-between items-center bg-bg-secondary/40 p-5 rounded-2xl border border-border-color/50">
-                     <span className="text-[10px] font-bold uppercase tracking-widest opacity-30">Account ID</span>
-                     <span className="font-mono text-[11px] font-bold tracking-tighter">CUST-ID-{userData.Customer_ID || '000'}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-bg-secondary/40 p-5 rounded-2xl border border-border-color/50">
-                     <span className="text-[10px] font-bold uppercase tracking-widest opacity-30">System Status</span>
-                     <span className="text-[9px] font-bold bg-black text-white px-4 py-1 rounded-full uppercase tracking-[.3em] shadow-sm">Active</span>
-                  </div>
-               </div>
-            </div>
+           <div className="bg-brand p-8 text-bg-primary rounded-[2.5rem] shadow-sm relative overflow-hidden group">
+              <h5 className="text-[10px] uppercase font-bold tracking-[.3em] opacity-50 mb-6 italic">Secure Metadata</h5>
+              <div className="space-y-4">
+                 <div className="flex justify-between items-center bg-bg-primary/10 p-4 rounded-xl border border-bg-primary/20">
+                    <span className="text-[9px] font-bold uppercase opacity-40">Account ID</span>
+                    <span className="font-mono text-[11px] font-bold tracking-tighter">CUST-ID-{userData.Customer_ID || '000'}</span>
+                 </div>
+                 <div className="flex justify-between items-center bg-bg-primary/10 p-4 rounded-xl border border-bg-primary/20">
+                    <span className="text-[9px] font-bold uppercase opacity-40">System Status</span>
+                    <span className="text-[10px] font-bold bg-bg-primary text-brand px-2.5 py-0.5 rounded-full uppercase tracking-widest shadow-sm">Active</span>
+                 </div>
+              </div>
+           </div>
         </div>
 
         {/* Right Col: Forms */}
         <div className="lg:col-span-2 space-y-8">
-            <div className="bg-bg-primary p-12 border border-border-color rounded-[3.5rem] shadow-sm">
-               <h4 className="text-2xl font-bold tracking-tight text-text-primary mb-12 flex items-center gap-4 italic serif-heading">
-                  <ShieldCheck className="w-6 h-6" /> Profile Details
-               </h4>
+           <div className="bg-bg-secondary p-10 border border-border-color rounded-[2.5rem] shadow-sm">
+              <h4 className="text-xl font-bold tracking-tight text-text-primary mb-10 flex items-center gap-2 italic serif-heading">
+                 <ShieldCheck className="w-5 h-5" /> Profile Details
+              </h4>
               
               <form onSubmit={handleUpdate} className="space-y-8">
                  <div className="grid grid-cols-2 gap-6">
@@ -176,26 +175,26 @@ const Profile = () => {
                     </div>
                  </div>
 
-                  <div className="pt-10">
-                     <button type="submit" disabled={isLoading} className="bg-black text-white w-full py-6 rounded-full text-[12px] font-bold uppercase tracking-[.4em] hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-black/20 cursor-pointer">
-                        {isLoading ? 'Synchronizing...' : 'Save Changes'}
-                     </button>
-                  </div>
+                 <div className="pt-6 border-t border-border-color">
+                    <button type="submit" disabled={isLoading} className="primary-button w-full py-5 text-[13px] font-bold uppercase tracking-widest shadow-lg shadow-brand/10">
+                       Save Changes
+                    </button>
+                 </div>
               </form>
            </div>
            
-            <div className="bg-bg-primary p-12 border border-border-color border-dashed rounded-[3.5rem]">
-               <h4 className="text-2xl font-bold tracking-tight text-red-500 mb-8 flex items-center gap-4 italic serif-heading">
-                  <LogOut className="w-6 h-6" /> Sign Out
-               </h4>
-               <p className="text-[15px] text-text-secondary mb-10 font-medium italic opacity-70">Ready to end your session? Your data is securely synchronized.</p>
-               <button 
-                 onClick={handleLogout}
-                 className="w-full py-6 rounded-full border-2 border-red-100 text-red-500 hover:bg-red-50 hover:border-red-500 transition-all font-bold uppercase tracking-[.4em] text-[11px] cursor-pointer"
-               >
-                  Sign Out from ServiTrack
-               </button>
-            </div>
+           <div className="bg-bg-secondary p-10 border border-border-color border-dashed rounded-[2.5rem]">
+              <h4 className="text-xl font-bold tracking-tight text-red-500 mb-6 flex items-center gap-2 italic serif-heading">
+                 <LogOut className="w-5 h-5" /> Sign Out
+              </h4>
+              <p className="text-sm text-text-secondary mb-8 font-medium">Ready to end your session? Your data is securely synchronized.</p>
+              <button 
+                onClick={handleLogout}
+                className="secondary-button w-full py-4 text-red-500 border-red-100 hover:bg-red-50/50 hover:border-red-500 hover:text-red-600 transition-all font-bold uppercase tracking-widest text-[11px]"
+              >
+                 Sign Out from ServiTrack
+              </button>
+           </div>
         </div>
       </div>
     </div>

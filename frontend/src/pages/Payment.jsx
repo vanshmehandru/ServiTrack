@@ -1,7 +1,7 @@
+import API_URL from '../config';
 import { useState, useEffect } from 'react';
 import { CreditCard, ShieldCheck, Zap, Info, DollarSign, Clock, CheckCircle2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import API_URL from '../config';
 
 const Payment = () => {
    const [bills, setBills] = useState([]);
@@ -35,7 +35,7 @@ const Payment = () => {
    const handlePay = async (serviceId, amount) => {
       const tId = toast.loading('Processing payment...');
       try {
-         const response = await fetch(`${API_URL}/payment`, {
+         const response = await fetch(`\${API_URL}/payment`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

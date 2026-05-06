@@ -1,9 +1,9 @@
+import API_URL from '../config';
 import { useState, useEffect } from 'react';
 import {
   Box, Activity, ShieldCheck, ArrowUpRight,
-  ArrowDownRight, Zap, Target, Search, Clock 
+  ArrowDownRight, Zap, Target, Search, Clock
 } from 'lucide-react';
-import API_URL from '../config';
 
 const Overview = () => {
   const [productList, setProductList] = useState([]);
@@ -58,15 +58,15 @@ const Overview = () => {
       {/* Welcome Header */}
       <div className="relative">
         <div className="space-y-1">
-          <h2 className="text-5xl font-bold tracking-tight text-text-primary serif-heading">System Monitor.</h2>
-          <p className="text-lg text-text-secondary font-medium opacity-80 italic">Infrastructure status: <span className="text-emerald-500 font-bold">Operational</span>. Node health at 99.9%.</p>
+          <h2 className="text-4xl font-bold tracking-tight text-text-primary italic serif-heading">System Monitor.</h2>
+          <p className="text-lg text-text-secondary font-medium opacity-80">Infrastructure status: <span className="text-emerald-500 font-bold">Operational</span>. Node health at 99.9%.</p>
         </div>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-bg-primary p-12 group relative overflow-hidden border border-border-color rounded-[3.5rem] transition-all hover:shadow-[0_15px_45px_-10px_rgba(0,0,0,0.08)]">
+          <div key={i} className="bg-bg-secondary p-10 group relative overflow-hidden border border-border-color rounded-[2.5rem] transition-all hover:bg-bg-primary hover:shadow-sm">
             <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
               <stat.icon className="w-24 h-24 text-text-primary" />
             </div>
@@ -88,7 +88,7 @@ const Overview = () => {
       {/* Main Grid: Activity & Health */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         {/* Activity Feed */}
-        <div className="lg:col-span-3 bg-bg-primary p-12 border border-border-color rounded-[3.5rem] shadow-sm">
+        <div className="lg:col-span-3 bg-bg-primary p-10 border border-border-color rounded-[2.5rem] shadow-sm">
           <div className="flex justify-between items-center mb-10 text-center md:text-left">
             <div>
               <h4 className="text-xl font-bold tracking-tight text-text-primary italic serif-heading">Real-Time Registry</h4>
@@ -120,7 +120,7 @@ const Overview = () => {
         </div>
 
         {/* Health Matrix */}
-        <div className="lg:col-span-2 bg-bg-primary p-12 border border-border-color rounded-[3.5rem] flex flex-col items-center">
+        <div className="lg:col-span-2 bg-bg-secondary p-10 border border-border-color rounded-[2.5rem] flex flex-col items-center">
           <div className="w-full mb-10">
             <h4 className="text-xl font-bold tracking-tight text-text-primary italic serif-heading">Health Matrix</h4>
             <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-60">System availability vs uptime targets</p>

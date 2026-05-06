@@ -43,17 +43,17 @@ const Sidebar = () => {
             <button
               key={item.id}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center justify-between px-6 py-3.5 rounded-2xl transition-all border border-transparent cursor-pointer ${
+              className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all border-none cursor-pointer ${
                 isActive 
-                  ? 'bg-bg-primary text-text-primary shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-border-color' 
+                  ? 'bg-brand text-bg-primary shadow-sm' 
                   : 'bg-transparent text-text-secondary hover:bg-bg-secondary hover:text-text-primary'
               }`}
             >
-              <div className="flex items-center gap-4">
-                <item.icon className={`w-4 h-4 ${isActive ? 'text-text-primary' : 'opacity-40'}`} />
-                <span className={`text-[13px] tracking-tight ${isActive ? 'font-bold' : 'font-medium'}`}>{item.label}</span>
+              <div className="flex items-center gap-3">
+                <item.icon className={`w-4 h-4 ${isActive ? 'text-bg-primary' : 'opacity-60'}`} />
+                <span className={`text-[13px] ${isActive ? 'font-bold' : 'font-medium'}`}>{item.label}</span>
               </div>
-              {isActive && <ChevronRight className="w-3 h-3 text-text-primary opacity-30" />}
+              {isActive && <div className="w-1 h-1 bg-bg-primary rounded-full opacity-50"></div>}
             </button>
           );
         })}

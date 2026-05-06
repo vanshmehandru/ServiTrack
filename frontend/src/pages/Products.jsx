@@ -1,7 +1,7 @@
+import API_URL from '../config';
 import { useState, useEffect } from 'react';
 import { Box, Plus, Search, ShieldCheck, Filter, MoreVertical, LayoutGrid, List, Trash2, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
-import API_URL from '../config';
 
 const Products = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -74,7 +74,7 @@ const Products = () => {
     
     const tId = toast.loading('Adding product to registry...');
     try {
-      const response = await fetch(`${API_URL}/product`, {
+      const response = await fetch(`\${API_URL}/product`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -113,8 +113,8 @@ const Products = () => {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="flex items-center gap-8 flex-wrap">
           <div className="space-y-1">
-            <h2 className="text-5xl font-bold tracking-tight text-text-primary serif-heading">Product Inventory.</h2>
-            <p className="text-lg text-text-secondary font-medium opacity-80 italic">Oversee your assets and active coverage.</p>
+            <h2 className="text-4xl font-bold tracking-tight text-text-primary italic serif-heading">Product Inventory.</h2>
+            <p className="text-lg text-text-secondary font-medium opacity-80">Oversee your assets and active coverage.</p>
           </div>
           <button 
             onClick={() => setIsModalOpen(true)} 
@@ -131,20 +131,20 @@ const Products = () => {
             { label: 'Total Products', val: productList.length, icon: Box },
             { label: 'Coverage Active', val: productList.filter(p => p.IsUnderWarranty).length, icon: ShieldCheck }
           ].map((s, i) => (
-            <div key={i} className="bg-bg-primary p-8 rounded-[2rem] border border-border-color flex items-center gap-8 shadow-sm hover:shadow-[0_15px_45px_-10px_rgba(0,0,0,0.08)] transition-all">
-               <div className="w-14 h-14 rounded-2xl bg-bg-secondary flex items-center justify-center text-text-primary border border-border-color shadow-sm">
-                  <s.icon className="w-6 h-6 opacity-40" />
+            <div key={i} className="bg-bg-secondary p-8 rounded-3xl border border-border-color flex items-center gap-6 shadow-sm hover:shadow-md transition-all">
+               <div className="w-12 h-12 rounded-2xl bg-brand flex items-center justify-center text-bg-primary shadow-sm">
+                  <s.icon className="w-5 h-5" />
                </div>
                 <div>
-                   <div className="text-[10px] font-bold uppercase tracking-[.3em] text-text-secondary opacity-40 mb-1 italic">{s.label}</div>
-                   <div className="text-4xl font-bold text-text-primary tracking-tight">{s.val}</div>
+                   <div className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60 mb-1">{s.label}</div>
+                   <div className="text-3xl font-bold text-text-primary tracking-tighter">{s.val}</div>
                 </div>
              </div>
           ))}
       </div>
 
       {/* Inventory Controls */}
-      <div className="flex flex-col md:flex-row gap-6 mt-12 bg-bg-primary p-5 rounded-[2.5rem] border border-border-color shadow-sm">
+      <div className="flex flex-col md:flex-row gap-6 mt-12 bg-bg-secondary p-4 rounded-[2rem] border border-border-color shadow-sm">
          <div className="flex-1 relative group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary opacity-30 group-focus-within:opacity-100" />
             <input 
@@ -196,20 +196,20 @@ const Products = () => {
       </div>
 
       {/* Inventory Table */}
-      <div className="bg-bg-primary border border-border-color rounded-[3rem] overflow-hidden shadow-sm">
+      <div className="bg-bg-secondary border border-border-color rounded-[2.5rem] overflow-hidden shadow-sm">
          <div className="overflow-x-auto">
             {viewMode === 'table' ? (
               <table className="w-full text-left border-collapse">
                  <thead>
-                    <tr className="border-b border-border-color bg-bg-secondary/20">
-                       <th className="px-10 py-8 text-[10px] font-bold text-text-secondary uppercase tracking-[.3em] opacity-40">Product Name</th>
-                       <th className="px-10 py-8 text-[10px] font-bold text-text-secondary uppercase tracking-[.3em] opacity-40">Serial Number</th>
-                       <th className="px-10 py-8 text-[10px] font-bold text-text-secondary uppercase tracking-[.3em] opacity-40">Warranty Till</th>
-                       <th className="px-10 py-8 text-[10px] font-bold text-text-secondary uppercase tracking-[.3em] opacity-40">Status</th>
-                       <th className="px-10 py-8 text-right text-[10px] font-bold text-text-secondary uppercase tracking-[.3em] opacity-40">Actions</th>
+                    <tr className="border-b border-border-color bg-bg-primary/30">
+                       <th className="px-10 py-6 text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Product Name</th>
+                       <th className="px-10 py-6 text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Serial Number</th>
+                       <th className="px-10 py-6 text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Warranty Till</th>
+                       <th className="px-10 py-6 text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Status</th>
+                       <th className="px-10 py-6 text-right text-[10px] font-bold text-text-secondary uppercase tracking-[.2em] opacity-60">Actions</th>
                     </tr>
                  </thead>
-                 <tbody className="divide-y divide-border-color bg-bg-primary">
+                 <tbody className="divide-y divide-border-color">
                     {isLoading ? (
                       <tr><td colSpan="5" className="px-10 py-24 text-center text-text-secondary animate-pulse font-medium">Synchronizing records...</td></tr>
                     ) : filteredProducts.length === 0 ? (

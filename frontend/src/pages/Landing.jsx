@@ -7,7 +7,7 @@ const Landing = () => {
     <div className="min-h-screen bg-bg-primary text-text-primary font-sans">
       
       {/* Top Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-bg-primary/80 backdrop-blur-xl border-b border-border-color">
+      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-border-color">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-12">
             <Link to="/" className="flex items-center gap-2.5">
@@ -61,7 +61,7 @@ const Landing = () => {
         <section className="max-w-6xl mx-auto px-6 mb-40 animate-in">
           <div className="relative p-4 md:p-8 bg-bg-secondary rounded-[2.5rem] border border-border-color shadow-2xl overflow-hidden group">
             {/* Actual Dashboard Preview */}
-            <div className="aspect-[16/10] bg-bg-secondary rounded-[1.5rem] relative overflow-hidden flex flex-col group/preview border border-border-color shadow-inner">
+            <div className="aspect-[16/10] bg-white rounded-[1.5rem] relative overflow-hidden flex flex-col group/preview border border-border-color shadow-inner">
               {/* Background Image */}
               <img 
                 src={actualDashboard} 
@@ -70,7 +70,7 @@ const Landing = () => {
               />
               
               {/* Subtle Overlay to integrate with the landing page design */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-bg-primary/20 via-transparent to-transparent pointer-events-none"></div>
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-transparent to-transparent pointer-events-none"></div>
 
               {/* Floating Badge */}
               <div className="absolute top-6 right-6 flex items-center gap-2 bg-black/5 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-bold text-black border border-black/10">

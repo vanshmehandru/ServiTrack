@@ -1,7 +1,3 @@
-import axios from 'axios';
-import toast from 'react-hot-toast';
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import API_URL from '../config';
 import { useTheme } from '../context/ThemeContext';
 import { 
@@ -10,8 +6,7 @@ import {
   ShieldCheck, History, CreditCard,
   Search, User, MapPin, 
   Zap, ArrowRight, CheckCircle2, AlertCircle,
-  Activity, Plus,
-  Settings
+  Activity, Plus
 } from 'lucide-react';
 
 const Dashboard = () => {
