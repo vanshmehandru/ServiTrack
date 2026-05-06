@@ -6,12 +6,13 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 async function createDatabaseAndTables() {
     try {
         const connection = await mysql.createConnection({
-            host: process.env.DB_HOST || 'localhost',
-            user: process.env.DB_USER || 'root',
-            password: process.env.DB_PASSWORD || '',
+            host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
+            user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
+            password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
+            port: process.env.MYSQLPORT || 3306,
         });
 
-        const dbName = process.env.DB_NAME || 'warranty_db';
+        const dbName = process.env.MYSQLDATABASE || process.env.DB_NAME || 'warranty_db';
         
         // DROP DATABASE is necessary for a clean migration given the significant structural changes
         await connection.query(`DROP DATABASE IF EXISTS \`${dbName}\``);
