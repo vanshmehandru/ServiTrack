@@ -43,7 +43,7 @@ const ServiceRequest = () => {
 
     const tId = toast.loading('Initializing service request...');
     try {
-      const response = await fetch(`\${API_URL}/service-request`, {
+      const response = await fetch(`${API_URL}/service-request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

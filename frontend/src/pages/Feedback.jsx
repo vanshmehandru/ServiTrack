@@ -43,7 +43,7 @@ const Feedback = () => {
     setIsSubmitting(true);
     const tId = toast.loading('Submitting feedback...');
     try {
-      const response = await fetch(`\${API_URL}/feedback`, {
+      const response = await fetch(`${API_URL}/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

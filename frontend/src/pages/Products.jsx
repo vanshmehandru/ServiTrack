@@ -74,7 +74,7 @@ const Products = () => {
     
     const tId = toast.loading('Adding product to registry...');
     try {
-      const response = await fetch(`\${API_URL}/product`, {
+      const response = await fetch(`${API_URL}/product`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -20,7 +20,7 @@ const Profile = () => {
     const tId = toast.loading('Synchronizing profile...');
     
     try {
-      const response = await fetch(`\${API_URL}/profile`, {
+      const response = await fetch(`${API_URL}/profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

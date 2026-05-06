@@ -35,7 +35,7 @@ const Payment = () => {
    const handlePay = async (serviceId, amount) => {
       const tId = toast.loading('Processing payment...');
       try {
-         const response = await fetch(`\${API_URL}/payment`, {
+         const response = await fetch(`${API_URL}/payment`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

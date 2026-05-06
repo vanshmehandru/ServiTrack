@@ -49,7 +49,7 @@ const WarrantyPlans = () => {
     const tId = toast.loading(`Upgrading ${selectedProduct.Product_Name} to ${selectedPlan}...`);
     setIsUpgrading(true);
     try {
-      const response = await fetch(`\${API_URL}/upgrade-warranty`, {
+      const response = await fetch(`${API_URL}/upgrade-warranty`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
