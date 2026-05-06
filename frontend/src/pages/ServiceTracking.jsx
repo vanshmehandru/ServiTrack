@@ -4,6 +4,7 @@ import {
   Activity, Clock, User, ShieldCheck,
   Search, Filter, ChevronRight
 } from 'lucide-react';
+import API_URL from '../config';
 
 const ServiceTracking = () => {
   const [requests, setRequests] = useState([]);
@@ -21,7 +22,7 @@ const ServiceTracking = () => {
     const fetchTracking = async () => {
       if (!customerId) return;
       try {
-        const response = await fetch(`http://localhost:5000/service-status?customerId=${customerId}`);
+        const response = await fetch(`${API_URL}/service-status?customerId=${customerId}`);
         const data = await response.json();
         if (data.success) {
           setRequests(data.requests);
@@ -57,8 +58,8 @@ const ServiceTracking = () => {
       {/* Header */}
       <div className="relative">
         <div className="space-y-1">
-          <h2 className="text-4xl font-bold tracking-tight text-text-primary italic serif-heading">Service Tracking.</h2>
-          <p className="text-lg text-text-secondary font-medium opacity-80">Monitor the progress of your active and past service requests.</p>
+          <h2 className="text-5xl font-bold tracking-tight text-text-primary serif-heading">Service Tracking.</h2>
+          <p className="text-lg text-text-secondary font-medium opacity-80 italic">Monitor the progress of your active and past service requests.</p>
         </div>
       </div>
 
@@ -69,7 +70,7 @@ const ServiceTracking = () => {
           { label: 'On-Time Fulfillment', val: '99.8%', icon: ShieldCheck },
           { label: 'Average Response', val: '38m', icon: Clock },
         ].map((m, i) => (
-          <div key={i} className="bg-bg-secondary p-10 rounded-[2.5rem] border border-border-color flex items-center justify-between group transition-colors">
+          <div key={i} className="bg-bg-primary p-12 rounded-[3.5rem] border border-border-color flex items-center justify-between group transition-all hover:shadow-[0_15px_45px_-10px_rgba(0,0,0,0.08)]">
             <div className="relative z-10">
               <div className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60 mb-2">{m.label}</div>
               <div className="text-4xl font-bold text-text-primary tracking-tighter">{m.val}</div>
@@ -82,7 +83,7 @@ const ServiceTracking = () => {
       </div>
 
       {/* Protocol Dashboard */}
-      <div className="bg-bg-primary rounded-[2.5rem] border border-border-color shadow-sm overflow-hidden transition-colors">
+      <div className="bg-bg-primary rounded-[3.5rem] border border-border-color shadow-sm overflow-hidden transition-colors">
         <div className="p-8 border-b border-border-color flex flex-col md:flex-row justify-between items-center gap-6 bg-bg-secondary/30">
           <div className="relative flex-1 max-w-md group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary opacity-30 group-focus-within:opacity-100" />
@@ -175,7 +176,7 @@ const ServiceTracking = () => {
       </div>
 
       {/* Support Note */}
-      <div className="bg-bg-secondary border border-border-color border-dashed rounded-[2.5rem] p-12 flex flex-col items-center text-center transition-colors">
+      <div className="bg-bg-primary border border-border-color border-dashed rounded-[3.5rem] p-16 flex flex-col items-center text-center transition-colors shadow-sm">
         <Wrench className="w-10 h-10 text-text-primary mb-6 opacity-20" />
         <h4 className="text-xl font-bold tracking-tight text-text-primary mb-3 italic serif-heading">Support Dispatch</h4>
         <p className="max-w-2xl text-sm text-text-secondary leading-relaxed font-medium italic opacity-70">

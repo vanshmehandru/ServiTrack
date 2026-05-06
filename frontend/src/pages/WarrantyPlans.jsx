@@ -5,6 +5,7 @@ import {
   ArrowLeft, CreditCard, ChevronRight, Box
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import API_URL from '../config';
 
 const WarrantyPlans = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const WarrantyPlans = () => {
     const fetchProducts = async () => {
       if (!customerId) return;
       try {
-        const response = await fetch(`http://localhost:5000/products?customerId=${customerId}`);
+        const response = await fetch(`${API_URL}/products?customerId=${customerId}`);
         const data = await response.json();
         if (data.success) {
           setProductList(data.products);
@@ -48,7 +49,7 @@ const WarrantyPlans = () => {
     const tId = toast.loading(`Upgrading ${selectedProduct.Product_Name} to ${selectedPlan}...`);
     setIsUpgrading(true);
     try {
-      const response = await fetch('http://localhost:5000/upgrade-warranty', {
+      const response = await fetch(`${API_URL}/upgrade-warranty`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -82,7 +83,7 @@ const WarrantyPlans = () => {
           >
             <ArrowLeft className="w-3 h-3" /> Back to Warranty
           </button>
-          <h2 className="text-5xl font-black tracking-tighter text-text-primary italic serif-heading">Warranty Plans.</h2>
+          <h2 className="text-5xl font-black tracking-tighter text-text-primary serif-heading">Warranty Plans.</h2>
           <p className="text-lg text-text-secondary font-medium opacity-80 mt-2">Elevate the protection of your hardware fleet.</p>
         </div>
       </div>
@@ -90,7 +91,7 @@ const WarrantyPlans = () => {
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-12">
         {/* Left Column: Product Selection */}
         <div className="xl:col-span-1 space-y-8">
-          <div className="bg-bg-secondary p-8 rounded-[2.5rem] border border-border-color shadow-sm">
+          <div className="bg-bg-primary p-10 rounded-[3.5rem] border border-border-color shadow-sm">
             <h4 className="text-[10px] font-black uppercase tracking-widest text-text-secondary opacity-40 mb-8 italic">1. Select Hardware</h4>
 
             {isLoading ? (
@@ -135,9 +136,9 @@ const WarrantyPlans = () => {
               <div
                 key={plan.name}
                 onClick={() => setSelectedPlan(plan.name)}
-                className={`p-10 rounded-[3rem] border-2 transition-all cursor-pointer relative group flex flex-col ${selectedPlan === plan.name
-                    ? 'border-brand bg-bg-secondary shadow-2xl scale-[1.02]'
-                    : 'border-border-color bg-bg-primary hover:border-brand/30'
+                className={`p-12 rounded-[3.5rem] border-2 transition-all cursor-pointer relative group flex flex-col ${selectedPlan === plan.name
+                    ? 'border-black bg-bg-primary shadow-2xl scale-[1.02]'
+                    : 'border-border-color bg-bg-primary hover:border-black/30'
                   }`}
               >
                 <div className={`w-20 h-20 rounded-3xl bg-bg-secondary border border-border-color flex items-center justify-center mb-10 shadow-sm ${plan.color}`}>
@@ -168,7 +169,7 @@ const WarrantyPlans = () => {
             ))}
           </div>
 
-          <div className="bg-bg-secondary border border-border-color p-10 rounded-[3rem] flex flex-col md:flex-row justify-between items-center gap-8 shadow-sm">
+          <div className="bg-bg-primary border border-border-color p-12 rounded-[3.5rem] flex flex-col md:flex-row justify-between items-center gap-8 shadow-sm">
             <div className="flex items-center gap-6">
               <div className="w-16 h-16 rounded-2xl bg-bg-primary border border-border-color flex items-center justify-center text-text-primary shadow-sm">
                 <CreditCard className="w-8 h-8 opacity-30" />
@@ -181,11 +182,11 @@ const WarrantyPlans = () => {
             <button
               disabled={isUpgrading || !selectedProduct}
               onClick={handleUpgrade}
-              className="primary-button px-20 py-5 text-[12px] font-black uppercase tracking-[.4em] shadow-2xl shadow-brand/20 flex items-center gap-4 disabled:opacity-50 active:scale-95 transition-all"
+              className="bg-black text-white px-20 py-6 rounded-full text-[13px] font-bold uppercase tracking-[.4em] hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-black/20 flex items-center justify-center gap-4 cursor-pointer disabled:opacity-50"
             >
               {isUpgrading ? 'Processing Sync...' : (
                 <>
-                  Confirm & Upgrade <ChevronRight className="w-4 h-4" />
+                  Confirm & Upgrade <ChevronRight className="w-5 h-5" />
                 </>
               )}
             </button>

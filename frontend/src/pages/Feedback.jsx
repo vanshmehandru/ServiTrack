@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Star, MessageSquare, Send, ShieldCheck, Info, Wrench } from 'lucide-react';
 import toast from 'react-hot-toast';
+import API_URL from '../config';
 
 const Feedback = () => {
   const [completedServices, setCompletedServices] = useState([]);
@@ -16,7 +17,7 @@ const Feedback = () => {
   const fetchCompleted = async () => {
     if (!customerId) return;
     try {
-      const response = await fetch(`http://localhost:5000/service-status?customerId=${customerId}`);
+      const response = await fetch(`${API_URL}/service-status?customerId=${customerId}`);
       const data = await response.json();
       if (data.success) {
         // Filter for completed services that don't have feedback yet
@@ -42,7 +43,7 @@ const Feedback = () => {
     setIsSubmitting(true);
     const tId = toast.loading('Submitting feedback...');
     try {
-      const response = await fetch('http://localhost:5000/feedback', {
+      const response = await fetch(`${API_URL}/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -74,14 +75,14 @@ const Feedback = () => {
       {/* Header */}
       <div className="relative">
         <div className="space-y-1">
-          <h2 className="text-4xl font-bold tracking-tight text-text-primary italic serif-heading">Service Feedback.</h2>
-          <p className="text-lg text-text-secondary font-medium opacity-80">Please share your experience with our service to help us improve.</p>
+          <h2 className="text-5xl font-bold tracking-tight text-text-primary serif-heading">Service Feedback.</h2>
+          <p className="text-lg text-text-secondary font-medium opacity-80 italic">Please share your experience with our service to help us improve.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-8">
-          <div className="bg-bg-secondary p-10 border border-border-color rounded-[2.5rem] shadow-sm">
+          <div className="bg-bg-primary p-12 border border-border-color rounded-[3.5rem] shadow-sm">
             <h4 className="text-xl font-bold tracking-tight text-text-primary mb-12 flex items-center gap-3 italic serif-heading">
               <Star className="w-5 h-5" /> Rate Service
             </h4>
@@ -140,9 +141,9 @@ const Feedback = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting || isLoading}
-                  className="primary-button w-full py-5 text-[13px] font-bold uppercase tracking-widest"
+                  className="bg-black text-white w-full py-6 rounded-full text-[13px] font-bold uppercase tracking-[.4em] hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-black/20 flex items-center justify-center gap-4 cursor-pointer"
                 >
-                  {isSubmitting ? 'Syncing...' : <>Submit Feedback <Send className="w-4 h-4" /></>}
+                  {isSubmitting ? 'Syncing...' : <>Submit Feedback <Send className="w-5 h-5" /></>}
                 </button>
               </div>
             </form>
@@ -150,20 +151,20 @@ const Feedback = () => {
         </div>
 
         <div className="lg:col-span-1 space-y-8">
-          <div className="p-10 bg-brand text-bg-primary rounded-[2.5rem] relative overflow-hidden group">
-            <ShieldCheck className="w-8 h-8 text-bg-primary mb-6" />
-            <h4 className="text-2xl font-bold tracking-tight mb-4 italic uppercase serif-heading">Quality <br />Control.</h4>
-            <p className="opacity-60 text-xs font-medium leading-relaxed italic mb-10">Your feedback helps us maintain the highest standards of service excellence.</p>
+          <div className="p-12 bg-black text-white rounded-[3.5rem] relative overflow-hidden group shadow-2xl">
+            <ShieldCheck className="w-10 h-10 text-white/40 mb-8" />
+            <h4 className="text-3xl font-bold tracking-tight mb-4 italic uppercase serif-heading leading-tight">Quality <br />Control.</h4>
+            <p className="opacity-60 text-[13px] font-medium leading-relaxed italic mb-10">Your feedback helps us maintain the highest standards of service excellence.</p>
           </div>
 
-          <div className="p-10 bg-bg-secondary border border-border-color rounded-[2.5rem]">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-bg-primary border border-border-color flex items-center justify-center text-text-primary">
-                <Info className="w-5 h-5 opacity-30" />
+          <div className="p-12 bg-bg-primary border border-border-color rounded-[3.5rem] shadow-sm">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-12 h-12 rounded-2xl bg-bg-secondary border border-border-color flex items-center justify-center text-text-primary">
+                <Info className="w-6 h-6 opacity-30" />
               </div>
-              <div className="text-[11px] font-bold text-text-secondary uppercase tracking-widest opacity-60">Verification</div>
+              <div className="text-[11px] font-bold text-text-secondary uppercase tracking-[.4em] opacity-40 italic">Verification</div>
             </div>
-            <p className="text-[11px] text-text-secondary leading-relaxed font-medium">Feedback is permanently attached to the service record for quality auditing.</p>
+            <p className="text-[13px] text-text-secondary leading-relaxed font-medium italic">Feedback is permanently attached to the service record for quality auditing.</p>
           </div>
         </div>
       </div>
